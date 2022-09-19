@@ -28,14 +28,8 @@ in
   boot.loader.grub.device = "/dev/nvme0n1";
   boot.loader.grub.useOSProber = true;
 
-  networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
   # Enable networking
+  networking.hostName = "nixos";  
   networking.networkmanager.enable = true;
 
   # Set your time zone.
@@ -94,21 +88,39 @@ in
   };
 
   home-manager.users.jasonk = { pkgs, ... }: {
+    home.username = "jasonk";
+    home.homeDirectory = "/home/jasonk";
+
+    nixpkgs.config.allowUnfree = true;
+
     home.packages = with pkgs; [ 
       appimage-run
+      picom
       networkmanagerapplet
       pciutils
       acpi
       lm_sensors
       pavucontrol
-      pywal
       rofi
-      dmenu
-      networkmanager_dmenu
       ulauncher
       feh
+      zip
+      unzip
+      xfce.exo
+      xfce.thunar
+      xfce.thunar-archive-plugin
+      xfce.thunar-volman
+      xfce.tumbler
       ];
     programs.bash.enable = true;
+
+    services.picom = {
+      enable = true;   
+      inactiveOpacity = "0.8"; 
+      extraOptions = ''
+          corner-radius = 5;
+        '';
+  };  
   };
 
   fonts = {
@@ -120,6 +132,7 @@ in
     ];
   };  
 
+  services.gvfs.enable = true; 
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
