@@ -4,6 +4,16 @@
 
 { config, pkgs, ... }:
 
+
+let
+  nvidia-offload = pkgs.writeShellScriptBin "nvidia-offload" ''
+    export __NV_PRIME_RENDER_OFFLOAD=1
+    export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
+    export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    export __VK_LAYER_NV_optimus=NVIDIA_only
+    exec -a "$0" "$@"
+  '';
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -29,7 +39,11 @@
   time.timeZone = "America/Rainy_River";
 
   # Select internationalisation properties.
-  i18n.defaultLocale = "en_CA.utf8";
+   i18n.defaultLocale = "en_US.UTF-8";
+   console = {
+     font = "Lat2-Terminus16";
+     keyMap = "us";
+   };
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
@@ -37,7 +51,7 @@
   # Enable the KDE Plasma Desktop Environment.
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
-
+  services.xserver.videoDrivers = [ "nvidia" ];
   # Configure keymap in X11
   services.xserver = {
     layout = "us";
@@ -47,22 +61,11 @@
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
-  # Enable sound with pipewire.
+  # Enable sound.
   sound.enable = true;
-  hardware.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
-  };
+  hardware.pulseaudio.enable = true;
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
@@ -77,9 +80,17 @@
       kate
       vscode
       git
-    #  thunderbird
     ];
   };
+
+  fonts = {
+    fontDir.enable = true;
+    enableGhostscriptFonts = true;
+    fonts = with pkgs; [
+      font-awesome
+      weather-icons
+    ];
+  };  
 
   # Enable automatic login for the user.
   services.xserver.displayManager.autoLogin.enable = true;
@@ -91,9 +102,24 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
+    nvidia-offload 
+    pkgs.libglvnd
   ];
+
+
+  hardware = { 
+    opengl = {
+      driSupport = true;
+      driSupport32Bit = true;
+    };
+  };
+  hardware.nvidia.prime = {
+    offload.enable = true;
+    # Bus ID of the Intel GPU. You can find it using lspci, either unde>
+    intelBusId = "PCI:0:2:0";
+    # Bus ID of the NVIDIA GPU. You can find it using lspci, either und>
+    nvidiaBusId = "PCI:1:0:0";
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -121,5 +147,12 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "22.05"; # Did you read the comment?
+
+  nix.autoOptimiseStore = true;
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 7d";
+  };
 
 }
