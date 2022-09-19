@@ -106,6 +106,7 @@ in
       dmenu
       networkmanager_dmenu
       ulauncher
+      feh
       ];
     programs.bash.enable = true;
   };
