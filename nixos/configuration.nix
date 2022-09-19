@@ -17,7 +17,7 @@ in
 {
   imports =
     [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+      /etc/nixos/hardware-configuration.nix
       <home-manager/nixos>
     ];
 
@@ -48,12 +48,19 @@ in
      keyMap = "us";
    };
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-
   # Enable the KDE Plasma Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver = {
+    enable = true;
+    libinput.enable = true;
+    displayManager.sddm.enable = true; #TODO remove
+    displayManager.sddm.autoNumlock = true;
+    windowManager.qtile.enable = true; 
+    displayManager.autoLogin = {
+       enable = true;
+       user = "jasonk";
+     };
+  };
+
   services.xserver.videoDrivers = [ "nvidia" ];
   # Configure keymap in X11
   services.xserver = {
@@ -89,6 +96,16 @@ in
   home-manager.users.jasonk = { pkgs, ... }: {
     home.packages = with pkgs; [ 
       appimage-run
+      networkmanagerapplet
+      pciutils
+      acpi
+      lm_sensors
+      pavucontrol
+      pywal
+      rofi
+      dmenu
+      networkmanager_dmenu
+      ulauncher
       ];
     programs.bash.enable = true;
   };
@@ -102,12 +119,6 @@ in
     ];
   };  
 
-  # Enable automatic login for the user.
-  services.xserver.displayManager.autoLogin.enable = true;
-  services.xserver.displayManager.autoLogin.user = "jasonk";
-
-  # Allow unfree packages
-  
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget

@@ -12,3 +12,6 @@ sudo nix-channel --update
 
 sudo mv /etc/nixos/configuration.nix /etc/nixos/configuration.nix-BAK
 sudo ln -s /home/jasonk/NixOS_DotFiles/nixos/configuration.nix /etc/nixos/configuration.nix
+
+ln -s /home/jasonk/NixOS_DotFiles/qtile /home/jasonk/.config/qtile
+ln -s /home/jasonk/NixOS_DotFiles/rofi /home/jasonk/.config/rofi
