@@ -181,9 +181,12 @@ in
       package = pkgs.vscode;
       extensions = with pkgs.vscode-extensions; [
           jakebecker.elixir-ls
+          jdinhlife.gruvbox
       ];
       userSettings = {
-          # "terminal.integrated.fontFamily" = "Hack";
+          "editor.fontSize" = 14;
+          "window.zoomLevel" = 4;
+          "workbench.colorTheme" = "Gruvbox Dark Hard";
       };
     }; 
   };
