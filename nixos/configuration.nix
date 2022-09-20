@@ -131,6 +131,9 @@ in
       #development
       vscode
 
+      #Docs
+      libreoffice
+
       #File manager related
       xfce.exo
       xfce.thunar
