@@ -82,7 +82,6 @@ in
     packages = with pkgs; [
       firefox
       kate
-      vscode
       git
     ];
   };
@@ -128,6 +127,10 @@ in
       zip
       unzip
 
+
+      #development
+      vscode
+
       #File manager related
       xfce.exo
       xfce.thunar
@@ -156,7 +159,18 @@ in
       extraOptions = ''
           corner-radius = 5;
         '';
-    };  
+    }; 
+
+    programs.vscode = {
+      enable = true;
+      package = pkgs.vscode;
+      extensions = with pkgs.vscode-extensions; [
+          jakebecker.elixir-ls
+      ];
+      userSettings = {
+          # "terminal.integrated.fontFamily" = "Hack";
+      };
+    }; 
   };
 
   fonts = {

@@ -109,7 +109,9 @@ keys = [
     # programs
     Key([mod], "c", lazy.spawn("code"), desc="Launch VSCode"),
     Key([mod], "f", lazy.spawn("thunar"), desc="Launch File Manager"),
-
+    Key([mod], "o", lazy.spawn("appimage-run /home/jasonk/app_images/Obsidian-0.15.9.AppImage"), desc="Launch Obsidian"),
+    # Screenshots
+    Key([], "Print", lazy.spawn("flameshot gui --clipboard"), desc="Flameshot Capture to Clipboard"),
     # OS level commands/menus    
     Key([mod, "control"], "s", lazy.spawn(f'rofi -show power-menu -modi power-menu:{CONFIG_HOME}rofi/scripts/rofi-power-menu'), desc="Shutdown Menu"),
     Key([mod, "control"], "b", lazy.spawn('/home/jasonk/.config/qtile/scripts/rofi-bluetooth.sh'), desc="Buetooth Menu"),
