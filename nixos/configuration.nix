@@ -78,7 +78,7 @@ in
   users.users.jasonk = {
     isNormalUser = true;
     description = "jasonk";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker"];
     packages = with pkgs; [
       firefox
       kate
@@ -93,9 +93,9 @@ in
     nixpkgs.config.allowUnfree = true;
 
     home.packages = with pkgs; [ 
+      #Package runners
       appimage-run
-      glxinfo
-
+      
       # Screenshots
       flameshot
 
@@ -105,31 +105,38 @@ in
       wineWowPackages.staging
       winetricks
       mesa
+      glxinfo
+
 
       picom
       networkmanagerapplet
-
 
       #Sensors
       pciutils
       acpi
       lm_sensors
 
-
       #Chat / Community
       discord
 
-      
+      #Sound
       pavucontrol
+
+      #Launchers and Menus
       rofi
       ulauncher
+
+      #Graphics
+      gimp
       feh
+
+      #Archiving
       zip
       unzip
 
-
       #development
       vscode
+      direnv
 
       #Docs
       libreoffice
@@ -141,12 +148,10 @@ in
       xfce.thunar-volman
       xfce.tumbler
 
-
       #Terminals and Shell
       alacritty
       kitty
       fish
-
 
       #Theme Backend Stuff
       lxappearance
@@ -192,6 +197,13 @@ in
           "workbench.colorTheme" = "Gruvbox Dark Hard";
       };
     }; 
+  };
+
+  virtualisation = {
+    docker = {
+      enable = true;
+      enableOnBoot = true;
+    };
   };
 
   fonts = {
