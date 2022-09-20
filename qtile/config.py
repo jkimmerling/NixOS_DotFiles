@@ -42,7 +42,7 @@ def autostart():
     subprocess.call([home])
 
 mod = "mod4"
-terminal = guess_terminal()
+terminal = "alacritty"
 browser = "firefox"
 launcher = "ulauncher"
 
