@@ -190,6 +190,11 @@ in
       extensions = with pkgs.vscode-extensions; [
           jakebecker.elixir-ls
           jdinhlife.gruvbox
+          arrterian.nix-env-selector
+          jnoortheen.nix-ide
+          ms-python.python
+          ms-azuretools.vscode-docker
+          redhat.vscode-yaml
       ];
       userSettings = {
           "editor.fontSize" = 14;
