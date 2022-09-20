@@ -149,9 +149,24 @@ in
       lxappearance
       gruvbox-dark-gtk
       
-      ];
-    programs.bash.enable = true;
-    # programs.steam.enable = true;
+    ];
+
+
+    programs.bash ={
+      enable = true;
+      initExtra =
+      ''
+        
+
+        init-elixir () {
+          cp ~/NixOS_DotFiles/nix-shells/elixir/shell.nix ./
+          nix-shell
+        }
+
+
+      '';
+    };
+
 
     services.picom = {
       enable = true;   
