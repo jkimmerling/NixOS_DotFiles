@@ -83,8 +83,11 @@ in
       firefox
       kate
       git
+      dconf
     ];
   };
+
+  programs.dconf.enable = true;
 
   home-manager.users.jasonk = { pkgs, ... }: {
     home.username = "jasonk";
@@ -118,6 +121,7 @@ in
 
       #Chat / Community
       discord
+      slack
 
       #Sound
       pavucontrol
@@ -125,6 +129,9 @@ in
       #Launchers and Menus
       rofi
       ulauncher
+
+      #Remote Access
+      remmina
 
       #Graphics
       gimp
@@ -137,6 +144,10 @@ in
       #development
       vscode
       direnv
+      postman
+
+      #Virtualization
+      docker-compose
 
       #Docs
       libreoffice
@@ -147,17 +158,31 @@ in
       xfce.thunar-archive-plugin
       xfce.thunar-volman
       xfce.tumbler
-
+      gvfs
+      xfce.xfconf # thunar save settings
+      xorg.xrandr 
+      
       #Terminals and Shell
       alacritty
       kitty
       fish
 
       #Theme Backend Stuff
+      # dconf
       lxappearance
-      gruvbox-dark-gtk
+      # gruvbox-dark-gtk
       
     ];
+
+    gtk = {
+      enable = true;
+      font.name = "Droid Sans Mono 20";
+      theme = {
+        name = "gruvbox-dark";
+        package = pkgs.gruvbox-dark-gtk;
+      };
+    };
+
 
 
     programs.bash ={
