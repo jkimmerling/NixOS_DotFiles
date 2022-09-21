@@ -118,6 +118,10 @@ in
       pciutils
       acpi
       lm_sensors
+      tlp
+
+      #System info
+      glances
 
       #Chat / Community
       discord
@@ -166,11 +170,6 @@ in
       alacritty
       kitty
       fish
-
-      #Theme Backend Stuff
-      # dconf
-      lxappearance
-      # gruvbox-dark-gtk
       
     ];
 
@@ -183,7 +182,15 @@ in
       };
     };
 
-
+    programs.kitty = {
+      enable = true;
+      settings = {
+        remember_window_size = "no";
+        initial_window_width = "180c";
+        initial_window_height = "60c";
+        font_size = "20.0";
+      };
+    };
 
     programs.bash ={
       enable = true;

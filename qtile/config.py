@@ -280,6 +280,7 @@ screens = [
                 ),
                 widget.Systray(
                     background = colors[0],
+                    icon_size = 23
                 ),
                 widget.TextBox(
                     text = '  ',
@@ -296,8 +297,7 @@ screens = [
                     battery="BAT0",
                     format="BAT:{percent:2.0%}",
                     show_short_text = False,
-                    background = colors[0],
-                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('tlpui')},
+                    background = colors[0]
                 ),
                 widget.TextBox(
                     text = '  ',
@@ -306,7 +306,7 @@ screens = [
                 ),
                 widget.CPU(
                     background = colors[0],
-                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('urxvt -geometry 155x70 -e "glances"')},
+                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('kitty -e "glances"')},
                 ),
                 widget.TextBox(
                     text = '  ',
@@ -317,11 +317,11 @@ screens = [
                     text = " MEM:",
                     background = colors[0],
                     padding = 0,
-                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('urxvt -geometry 155x70 -e "glances"')},
+                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('kitty -e "glances"')},
                     ),
                 widget.Memory(
                     background = colors[0],
-                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('urxvt -geometry 155x70 -e "glances"')},
+                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('kitty -e "glances"')},
                 ),
                 widget.TextBox(
                     text = '  ',
