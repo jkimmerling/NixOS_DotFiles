@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # get username from variable
+# get channel version (22.05 or Unstable)
 
 cd /home/jasonk
-mkdir app_images
+mkdir AppImages
+mkdir Development
 
 git clone git@github.com:jkimmerling/NixOS_DotFiles.git
 
@@ -14,4 +16,3 @@ sudo mv /etc/nixos/configuration.nix /etc/nixos/configuration.nix-BAK
 sudo ln -s /home/jasonk/NixOS_DotFiles/nixos/configuration.nix /etc/nixos/configuration.nix
 
 ln -s /home/jasonk/NixOS_DotFiles/qtile /home/jasonk/.config/qtile
-ln -s /home/jasonk/NixOS_DotFiles/rofi /home/jasonk/.config/rofi

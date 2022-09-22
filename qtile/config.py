@@ -34,7 +34,8 @@ from libqtile import hook
 import os
 import subprocess
 
-CONFIG_HOME = '/home/jasonk/.config/'
+USERNAME = os.getlogin()
+CONFIG_HOME = f'/home/{USERNAME}/NixOS_DotFiles/'
 
 @hook.subscribe.startup_once
 def autostart():
@@ -109,12 +110,12 @@ keys = [
     # programs
     Key([mod], "c", lazy.spawn("code"), desc="Launch VSCode"),
     Key([mod], "f", lazy.spawn("thunar"), desc="Launch File Manager"),
-    Key([mod], "o", lazy.spawn("appimage-run /home/jasonk/app_images/Obsidian-0.15.9.AppImage"), desc="Launch Obsidian"),
+    Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Obsidian-0.15.9.AppImage"), desc="Launch Obsidian"),
     # Screenshots
     Key([], "Print", lazy.spawn("flameshot gui --clipboard"), desc="Flameshot Capture to Clipboard"),
     # OS level commands/menus    
     Key([mod, "control"], "s", lazy.spawn(f'rofi -show power-menu -modi power-menu:{CONFIG_HOME}rofi/scripts/rofi-power-menu'), desc="Shutdown Menu"),
-    Key([mod, "control"], "b", lazy.spawn('/home/jasonk/.config/qtile/scripts/rofi-bluetooth.sh'), desc="Buetooth Menu"),
+    Key([mod, "control"], "b", lazy.spawn(f'/home/{USERNAME}/.config/qtile/scripts/rofi-bluetooth.sh'), desc="Buetooth Menu"),
     
     # Volume Control
     Key(
@@ -348,7 +349,7 @@ screens = [
                 widget.Net(
                     format = 'NET:{down} ↓↑ {up}',
                     background = colors[0],
-                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('/home/jasonk/.config/qtile/scripts/rofi-wifi-menu.sh')},
+                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn(f'{CONFIG_HOME}qtile/scripts/rofi-wifi-menu.sh')},
                 ),
                 widget.TextBox(
                     text = '  ',
@@ -374,7 +375,7 @@ screens = [
                       text = " Bluetooth",
                        background = colors[0],
                        padding = 0,
-                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('/home/jasonk/.config/qtile/scripts/rofi-bluetooth.sh')},
+                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn(f'{CONFIG_HOME}qtile/scripts/rofi-bluetooth.sh')},
                        ),
                 widget.TextBox(
                     text = '  ',

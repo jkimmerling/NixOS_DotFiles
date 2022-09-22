@@ -231,6 +231,7 @@ in
           ms-python.python
           ms-azuretools.vscode-docker
           redhat.vscode-yaml
+          yzhang.markdown-all-in-one
       ];
       userSettings = {
           "editor.fontSize" = 14;

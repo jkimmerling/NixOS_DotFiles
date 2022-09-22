@@ -18,6 +18,5 @@ pkgs.mkShell {
     python -m venv .venv
     source .venv/bin/activate
     pip install apache-airflow
-    curl -sSL install.astronomer.io | sudo bash -s
   '';
 }
