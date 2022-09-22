@@ -21,6 +21,8 @@ sed -i "s/jasonk/$username" /home/$username/NixOS_DotFiles/nixos/configuration.n
 
 ln -s /home/$username/NixOS_DotFiles/qtile /home/$username/.config/qtile
 
+sudo nixos-rebuild switch
+
 if [ ${channel:-0} == 0 ] ; then
     sudo nix-channel --add https://github.com/nix-community/home-manager/archive/release-22.05.tar.gz home-manager
     sudo nix-channel --update
@@ -29,10 +31,10 @@ elif [ ${channel:-0} == 'unstable' ]; then
     sudo nix-channel --add https://nixos.org/channels/nixos-unstable nixos
     sudo nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
     sudo nix-channel --update
+    sudo nixos-rebuild switch --upgrade
 else
     sudo nix-channel --add https://github.com/nix-community/home-manager/archive/release-$channel.tar.gz home-manager
     sudo nix-channel --update
     sed -i "s/22.05/$channel" /home/$username/NixOS_DotFiles/nixos/configuration.nix
 fi
 
-sudo nixos-rebuild switch --upgrade
