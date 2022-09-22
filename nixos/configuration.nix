@@ -170,6 +170,7 @@ in
       alacritty
       kitty
       fish
+      neofetch
       
     ];
 
@@ -197,12 +198,15 @@ in
       initExtra =
       ''
         
-
         init-elixir () {
           cp ~/NixOS_DotFiles/nix-shells/elixir/shell.nix ./
           nix-shell
         }
 
+        init-airflow () {
+          cp ~/NixOS_DotFiles/nix-shells/python/airflow/shell.nix ./
+          nix-shell
+        }
 
       '';
     };
