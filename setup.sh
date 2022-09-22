@@ -14,6 +14,13 @@ mkdir Development
 
 git clone git@github.com:jkimmerling/NixOS_DotFiles.git
 
+sudo mv /etc/nixos/configuration.nix /etc/nixos/configuration.nix-BAK
+sudo ln -s /home/$username/NixOS_DotFiles/nixos/configuration.nix /etc/nixos/configuration.nix
+
+sed -i "s/jasonk/$username" /home/$username/NixOS_DotFiles/nixos/configuration.nix
+
+ln -s /home/$username/NixOS_DotFiles/qtile /home/$username/.config/qtile
+
 if [ ${channel:-0} == 0 ] ; then
     sudo nix-channel --add https://github.com/nix-community/home-manager/archive/release-22.05.tar.gz home-manager
     sudo nix-channel --update
@@ -27,12 +34,5 @@ else
     sudo nix-channel --update
     sed -i "s/22.05/$channel" /home/$username/NixOS_DotFiles/nixos/configuration.nix
 fi
-
-sudo mv /etc/nixos/configuration.nix /etc/nixos/configuration.nix-BAK
-sudo ln -s /home/$username/NixOS_DotFiles/nixos/configuration.nix /etc/nixos/configuration.nix
-
-sed -i "s/jasonk/$username" /home/$username/NixOS_DotFiles/nixos/configuration.nix
-
-ln -s /home/$username/NixOS_DotFiles/qtile /home/$username/.config/qtile
 
 sudo nixos-rebuild switch --upgrade
