@@ -32,3 +32,7 @@
 ### to_empty_the_mind__reflect_on_the_past_and_future__by_sevenics_dd29499.png
     * Artist: https://www.deviantart.com/sevenics
     * Image link: https://www.deviantart.com/sevenics/art/To-Empty-the-Mind-Reflect-on-the-Past-and-Future-789844941
+
+### shadow_of_gur_la_ya_by_oliverink_dddybhl.png
+    * Artist: https://www.deviantart.com/oliverink
+    * Image link: https://www.deviantart.com/oliverink/art/Shadow-Of-Gur-la-ya-809496489
