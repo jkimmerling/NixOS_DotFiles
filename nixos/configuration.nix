@@ -272,8 +272,8 @@ in
       driSupport32Bit = true;
     };
     nvidia.prime = {
-    # offload.enable = true;
-    sync.enable = true;
+    offload.enable = true;
+    # sync.enable = true;
     # Bus ID of the Intel GPU. You can find it using lspci, either unde>
     intelBusId = "PCI:0:2:0";
     # Bus ID of the NVIDIA GPU. You can find it using lspci, either und>
