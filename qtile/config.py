@@ -348,8 +348,7 @@ screens = [
                 ),
                 widget.Net(
                     format = 'NET:{down} ↓↑ {up}',
-                    background = colors[0],
-                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn(f'{CONFIG_HOME}qtile/scripts/rofi-wifi-menu.sh')},
+                    background = colors[0]
                 ),
                 widget.TextBox(
                     text = '  ',

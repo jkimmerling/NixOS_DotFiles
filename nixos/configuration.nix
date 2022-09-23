@@ -217,8 +217,16 @@ in
       inactiveOpacity = "0.8"; 
       extraOptions = ''
           corner-radius = 5;
+          opacity-rule = [
+              "80:class_g = 'Alacritty'",
+          ];
         '';
     }; 
+
+    programs.rofi = {
+      enable = true;
+      theme = "Monokai";
+    };
 
     programs.vscode = {
       enable = true;
