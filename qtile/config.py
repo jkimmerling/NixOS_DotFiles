@@ -236,12 +236,12 @@ screens = [
 
                 ),
                 widget.OpenWeather(
-                    coordinates={"longitude": "-82.9393592","latitude": "38.3315779"},
+                    coordinates={"longitude": "-85.8725477","latitude": "34.1729504"},
                     app_key = 'd2cb97d17b9e98fb58a98e2944a748ca',
                     metric = False,
                     format = '{main_temp}°{units_temperature} {humidity}% {weather_details}',
                     background = colors[0],
-                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('kitty sh -c "curl wttr.in/38.3315779,-82.9393592; read"')},
+                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('kitty sh -c "curl wttr.in/gadsden?u; read"')},
                 ),
                 widget.TextBox(
                     text = '  ',

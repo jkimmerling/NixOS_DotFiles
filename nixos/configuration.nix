@@ -125,7 +125,7 @@ in
 
       #Chat / Community
       discord
-      slack
+      # slack
 
       #Sound
       pavucontrol
@@ -147,8 +147,9 @@ in
 
       #development
       vscode
+      jetbrains.idea-community
       direnv
-      postman
+      # postman
 
       #Virtualization
       docker-compose
@@ -197,16 +198,18 @@ in
       enable = true;
       initExtra =
       ''
-        
-        init-elixir () {
-          cp ~/NixOS_DotFiles/nix-shells/elixir/shell.nix ./
-          nix-shell
-        }
-
         init-airflow () {
           cp ~/NixOS_DotFiles/nix-shells/python/airflow/shell.nix ./
           nix-shell
         }
+        init-elixir () {
+          cp ~/NixOS_DotFiles/nix-shells/elixir/shell.nix ./
+          nix-shell
+        }
+        init-java () {
+          cp ~/NixOS_DotFiles/nix-shells/java/shell.nix ./
+          nix-shell
+        }       
 
       '';
     };
@@ -240,6 +243,7 @@ in
           ms-azuretools.vscode-docker
           redhat.vscode-yaml
           yzhang.markdown-all-in-one
+          betterthantomorrow.calva
       ];
       userSettings = {
           "editor.fontSize" = 14;
