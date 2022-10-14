@@ -115,7 +115,7 @@ keys = [
     Key([], "Print", lazy.spawn("flameshot gui --clipboard"), desc="Flameshot Capture to Clipboard"),
     # OS level commands/menus    
     Key([mod, "control"], "s", lazy.spawn(f'rofi -show power-menu -modi power-menu:{CONFIG_HOME}qtile/scripts/rofi-power-menu'), desc="Shutdown Menu"),
-    Key([mod, "control"], "b", lazy.spawn(f'/home/{USERNAME}/.config/qtile/scripts/rofi-bluetooth.sh'), desc="Buetooth Menu"),
+    Key([mod, "control"], "b", lazy.spawn(f'{CONFIG_HOME}qtile/scripts/rofi-bluetooth.sh'), desc="Buetooth Menu"),
     
     # Volume Control
     Key(
