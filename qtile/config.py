@@ -135,7 +135,7 @@ keys = [
 ]
 
 group_names = [("WWW", {'layout': 'monadtall'}),
-               ("DEV", {'layout': 'stack'}),
+               ("DEV", {'layout': 'columns'}),
                ("SYS", {'layout': 'monadtall'}),
                ("DOC", {'layout': 'monadtall'}),
                ("GFX", {'layout': 'max'})]

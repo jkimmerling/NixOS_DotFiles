@@ -95,8 +95,10 @@ in
 
     nixpkgs.config.allowUnfree = true;
 
+    xsession.numlock.enable = true;
+
     home.packages = with pkgs; [ 
-      #Package runners
+      #Package xsession.numlock.enable
       appimage-run
       
       # Screenshots
