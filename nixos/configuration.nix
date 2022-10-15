@@ -116,18 +116,19 @@ in
       picom
       networkmanagerapplet
 
-      #Sensors
+      #Hardware
       pciutils
       acpi
       lm_sensors
       tlp
+      brightnessctl
 
       #System info
       glances
 
       #Chat / Community
       discord
-      # slack
+      slack
 
       #Sound
       pavucontrol
