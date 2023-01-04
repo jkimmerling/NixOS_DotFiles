@@ -15,6 +15,8 @@ in
       pkgs.kubectl
       pkgs.kustomize
       pkgs.terraform_1
+      pkgs.clojure
+      pkgs.leiningen
     ];
     shellHook = ''
       export NIX_ENV=dev

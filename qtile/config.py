@@ -110,7 +110,8 @@ keys = [
     # programs
     Key([mod], "c", lazy.spawn("code"), desc="Launch VSCode"),
     Key([mod], "f", lazy.spawn("thunar"), desc="Launch File Manager"),
-    Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Obsidian-1.0.0.AppImage"), desc="Launch Obsidian"),
+    Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Obsidian-1.1.8.AppImage"), desc="Launch Obsidian"),
+    Key([mod], "p", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/pyfa-v2.48.0-linux.AppImage"), desc="Launch PYFA"),
     # Screenshots
     Key([], "Print", lazy.spawn("flameshot gui --clipboard"), desc="Flameshot Capture to Clipboard"),
     # OS level commands/menus    

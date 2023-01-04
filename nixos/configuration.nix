@@ -75,16 +75,19 @@ in
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.jasonk = {
-    isNormalUser = true;
-    description = "jasonk";
-    extraGroups = [ "networkmanager" "wheel" "docker"];
-    packages = with pkgs; [
-      firefox
-      kate
-      git
-      dconf
-    ];
+  users = {
+    extraGroups.vboxusers.members = [ "jasonk" ];
+    users.jasonk = {
+      isNormalUser = true;
+      description = "jasonk";
+      extraGroups = [ "networkmanager" "wheel" "docker"];
+      packages = with pkgs; [
+        firefox
+        kate
+        git
+        dconf
+      ];
+    };
   };
 
   programs.dconf.enable = true;
@@ -98,11 +101,26 @@ in
     xsession.numlock.enable = true;
 
     home.packages = with pkgs; [ 
-      #Package xsession.numlock.enable
+      #Misc
       appimage-run
-      
-      # Screenshots
+      picom
+      chromium
+      pkgs.notion-app-enhanced
+      teamspeak_client
+      mono
+      qbittorrent
+      hplip
+      system-config-printer
+
+      #Documentation
+      libreoffice
+      okular
+      mcomix3
+      anytype
+
+      # Media
       flameshot
+      vlc
 
       #Gaming
       lutris
@@ -112,8 +130,7 @@ in
       mesa
       glxinfo
 
-
-      picom
+      #Networking
       networkmanagerapplet
 
       #Hardware
@@ -125,6 +142,7 @@ in
 
       #System info
       glances
+      neofetch
 
       #Chat / Community
       discord
@@ -146,19 +164,18 @@ in
 
       #Archiving
       zip
+      xarchiver
       unzip
 
       #development
       vscode
       jetbrains.idea-community
       direnv
-      # postman
+      postman
 
       #Virtualization
       docker-compose
-
-      #Docs
-      libreoffice
+      virt-manager
 
       #File manager related
       xfce.exo
@@ -174,13 +191,12 @@ in
       alacritty
       kitty
       fish
-      neofetch
       
     ];
 
     gtk = {
       enable = true;
-      font.name = "Droid Sans Mono 20";
+      font.name = "Droid Sans Mono 18";
       theme = {
         name = "gruvbox-dark";
         package = pkgs.gruvbox-dark-gtk;
@@ -212,7 +228,11 @@ in
         init-java () {
           cp ~/NixOS_DotFiles/nix-shells/java/shell.nix ./
           nix-shell
-        }       
+        }  
+        init-rust () {
+          cp ~/NixOS_DotFiles/nix-shells/rust/shell.nix ./
+          nix-shell
+        }      
 
       '';
     };
@@ -252,14 +272,25 @@ in
           "editor.fontSize" = 14;
           "window.zoomLevel" = 4;
           "workbench.colorTheme" = "Gruvbox Dark Hard";
+          "terminal.integrated.enableMultiLinePasteWarning" = false;
+          "editor.detectIndentation" = false;
+          "editor.tabSize" = 2;
+          "explorer.confirmDragAndDrop"= false;
       };
     }; 
   };
+
+  
+  services.printing.drivers = [ pkgs.hplip ];
 
   virtualisation = {
     docker = {
       enable = true;
       enableOnBoot = true;
+    };
+    virtualbox.host = {
+      enable = true;
+      enableExtensionPack = true;
     };
   };
 
@@ -279,6 +310,7 @@ in
   environment.systemPackages = with pkgs; [
     nvidia-offload 
     pkgs.libglvnd
+    libpng
   ];
 
   hardware = {
@@ -287,8 +319,8 @@ in
       driSupport32Bit = true;
     };
     nvidia.prime = {
-    offload.enable = true;
-    # sync.enable = true;
+    # offload.enable = true;
+    sync.enable = true;
     # Bus ID of the Intel GPU. You can find it using lspci, either unde>
     intelBusId = "PCI:0:2:0";
     # Bus ID of the NVIDIA GPU. You can find it using lspci, either und>
