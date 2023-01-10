@@ -105,18 +105,15 @@ in
       appimage-run
       picom
       chromium
-      pkgs.notion-app-enhanced
-      teamspeak_client
       mono
       qbittorrent
-      hplip
-      system-config-printer
 
       #Documentation
       libreoffice
       okular
       mcomix3
       anytype
+      marktext
 
       # Media
       flameshot
@@ -144,9 +141,14 @@ in
       glances
       neofetch
 
+      #Printing
+      hplip #Driver for HP printer
+      system-config-printer #GUI for printing
+
       #Chat / Community
       discord
       slack
+      teamspeak_client
 
       #Sound
       pavucontrol
