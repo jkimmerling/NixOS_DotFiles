@@ -135,11 +135,12 @@ keys = [
 
 ]
 
-group_names = [("WWW", {'layout': 'monadtall'}),
-               ("DEV", {'layout': 'columns'}),
-               ("SYS", {'layout': 'monadtall'}),
-               ("DOC", {'layout': 'monadtall'}),
-               ("GFX", {'layout': 'max'})]
+group_names = [("Web", {'layout': 'monadtall'}),
+               ("Obs", {'layout': 'monadtall'}),
+               ("Dev", {'layout': 'columns'}),
+               ("Sys", {'layout': 'monadtall'}),
+               ("Doc", {'layout': 'monadtall'}),
+               ("Gam", {'layout': 'max'})]
 
 groups = [Group(name, **kwargs) for name, kwargs in group_names]
 
