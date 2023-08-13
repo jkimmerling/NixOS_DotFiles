@@ -54,7 +54,7 @@ colors = [["#25503d", "#25503d"], # background
           ["#797FD4", "#797FD4"], # violet
           ["#89aaff", "#89aaff"], # blue
           ["#89ddff", "#89ddff"], # ice
-          ["#E05F27", "#E05F27"], # orange
+          ["#E05F27", "#E05F27"], # orangae
           ["#1f2825", "#1f2825"], # green
           ["#1a2423", "#1a2423"], # Bottom Bar Background  
           ["#ff1817", "#ff1817"]] # red
@@ -109,11 +109,13 @@ keys = [
     Key([mod], "r", lazy.spawn(launcher), desc="Launch launcher"),
     # programs
     Key([mod], "c", lazy.spawn("code"), desc="Launch VSCode"),
+    Key([mod], "i", lazy.spawn("idea-community"), desc="Launch Intellij Idea"),
     Key([mod], "f", lazy.spawn("thunar"), desc="Launch File Manager"),
-    Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Obsidian-1.1.8.AppImage"), desc="Launch Obsidian"),
+    Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Obsidian-1.3.3.AppImage"), desc="Launch Obsidian"),
+    Key([mod], "a", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Anytype-0.33.2.AppImage"), desc="Launch AnyType"),
     Key([mod], "p", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/pyfa-v2.48.0-linux.AppImage"), desc="Launch PYFA"),
     # Screenshots
-    Key([], "Print", lazy.spawn("flameshot gui --clipboard"), desc="Flameshot Capture to Clipboard"),
+    Key([], "Print", lazy.spawn("flameshot gui"), desc="Flameshot Capture"),
     # OS level commands/menus    
     Key([mod, "control"], "s", lazy.spawn(f'rofi -show power-menu -modi power-menu:{CONFIG_HOME}qtile/scripts/rofi-power-menu'), desc="Shutdown Menu"),
     Key([mod, "control"], "b", lazy.spawn(f'{CONFIG_HOME}qtile/scripts/rofi-bluetooth.sh'), desc="Buetooth Menu"),
@@ -251,7 +253,9 @@ screens = [
 
                 ),
                 widget.Clock(format='%Y-%m-%d %a %I:%M %p',
-                    background = colors[0],),
+                    background = colors[0],
+                    mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn('gnome-calendar')},
+                ),
                 widget.TextBox(
                     text = '  ',
                     background = colors[0]

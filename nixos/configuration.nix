@@ -86,6 +86,7 @@ in
         kate
         git
         dconf
+        brave
       ];
     };
   };
@@ -94,6 +95,7 @@ in
 
   home-manager.users.jasonk = { pkgs, ... }: {
     home.username = "jasonk";
+    home.stateVersion = "23.05";
     home.homeDirectory = "/home/jasonk";
 
     nixpkgs.config.allowUnfree = true;
@@ -107,6 +109,14 @@ in
       chromium
       mono
       qbittorrent
+      youtube-dl
+      vmware-workstation
+      libsForQt5.kdeconnect-kde
+      gnome.gnome-calendar
+      gnome-online-accounts
+      gnome.gnome-keyring
+      steam-run
+
 
       #Documentation
       libreoffice
@@ -114,10 +124,12 @@ in
       mcomix3
       anytype
       marktext
+      calibre
 
       # Media
       flameshot
       vlc
+      spotify
 
       #Gaming
       lutris
@@ -129,6 +141,7 @@ in
 
       #Networking
       networkmanagerapplet
+      netcat-gnu
 
       #Hardware
       pciutils
@@ -136,6 +149,8 @@ in
       lm_sensors
       tlp
       brightnessctl
+      thinkfan
+      psensor
 
       #System info
       glances
@@ -144,11 +159,13 @@ in
       #Printing
       hplip #Driver for HP printer
       system-config-printer #GUI for printing
+      imagemagick
 
       #Chat / Community
       discord
       slack
       teamspeak_client
+      skypeforlinux
 
       #Sound
       pavucontrol
@@ -163,6 +180,11 @@ in
       #Graphics
       gimp
       feh
+      freecad
+      blender
+      xfce.ristretto
+      qrencode
+      inkscape
 
       #Archiving
       zip
@@ -172,8 +194,11 @@ in
       #development
       vscode
       jetbrains.idea-community
+      jetbrains.pycharm-community
       direnv
       postman
+      mysql-workbench
+      rabbitmq-server
 
       #Virtualization
       docker-compose
@@ -205,6 +230,8 @@ in
       };
     };
 
+    
+
     programs.kitty = {
       enable = true;
       settings = {
@@ -219,8 +246,12 @@ in
       enable = true;
       initExtra =
       ''
-        init-airflow () {
+        init-python-airflow () {
           cp ~/NixOS_DotFiles/nix-shells/python/airflow/shell.nix ./
+          nix-shell
+        }
+        init-python-notebook () {
+          cp ~/NixOS_DotFiles/nix-shells/python/notebook/shell.nix ./
           nix-shell
         }
         init-elixir () {
@@ -234,6 +265,12 @@ in
         init-rust () {
           cp ~/NixOS_DotFiles/nix-shells/rust/shell.nix ./
           nix-shell
+        }
+
+        function convert-iphone-pics() {
+          cd /home/jasonk/Downloads/iPhone
+          for f in *.heic; do magick $f -quality 95 $f.jpg;done
+          rm /home/jasonk/Downloads/iPhone/*.heic
         }      
 
       '';
@@ -242,13 +279,12 @@ in
 
     services.picom = {
       enable = true;   
-      inactiveOpacity = "0.8"; 
-      extraOptions = ''
-          corner-radius = 5;
-          opacity-rule = [
-              "80:class_g = 'Alacritty'",
-          ];
-        '';
+      settings.inactiveOpacity = 0.8; 
+      settings.corner-radius = 5;
+        #   opacity-rule = [
+        #       "80:class_g = 'Alacritty'",
+        #   ];
+        # '';
     }; 
 
     programs.rofi = {
@@ -290,10 +326,11 @@ in
       enable = true;
       enableOnBoot = true;
     };
-    virtualbox.host = {
-      enable = true;
-      enableExtensionPack = true;
-    };
+    vmware.host.enable = true;
+    # virtualbox.host = {
+    #   enable = true;
+    #   enableExtensionPack = true;
+    # };
   };
 
   fonts = {
@@ -307,12 +344,28 @@ in
 
   services.gvfs.enable = true; 
 
+
+  services.flatpak.enable = true;
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-wlr
+      xdg-desktop-portal-kde
+      xdg-desktop-portal-gtk
+    ];
+    
+  };
+  networking.firewall.allowedTCPPortRanges = [ { from = 1714; to = 1764; } ]; 
+  networking.firewall.allowedUDPPortRanges = [ { from = 1714; to = 1764; } ];
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     nvidia-offload 
     pkgs.libglvnd
     libpng
+    libsecret
+    appimage-run
   ];
 
   hardware = {
@@ -321,8 +374,8 @@ in
       driSupport32Bit = true;
     };
     nvidia.prime = {
-    # offload.enable = true;
-    sync.enable = true;
+    offload.enable = true;
+    # sync.enable = true;
     # Bus ID of the Intel GPU. You can find it using lspci, either unde>
     intelBusId = "PCI:0:2:0";
     # Bus ID of the NVIDIA GPU. You can find it using lspci, either und>
@@ -335,7 +388,13 @@ in
 
   system.stateVersion = "22.05"; # Did you read the comment?
 
-  nix.autoOptimiseStore = true;
+  nixpkgs.overlays = [
+    (self: super: {
+      fcitx-engines = pkgs.fcitx5;
+    })
+  ];
+
+  nix.settings.auto-optimise-store = true;
   nix.gc = {
     automatic = true;
     dates = "weekly";

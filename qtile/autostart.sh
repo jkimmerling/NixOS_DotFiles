@@ -6,3 +6,4 @@ blueman-applet &
 feh --recursive --bg-scale --randomize ~/NixOS_DotFiles/Wallpapers/* &
 picom &
 flameshot &
+xdg-settings set default-web-browser firefox.desktop
