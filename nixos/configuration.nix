@@ -13,6 +13,7 @@ let
     export __VK_LAYER_NV_optimus=NVIDIA_only
     exec -a "$0" "$@"
   '';
+
 in
 {
   imports =
@@ -22,6 +23,7 @@ in
     ];
 
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.allowBroken = true;
 
   # Bootloader.
   boot.loader.grub.enable = true;
@@ -42,7 +44,6 @@ in
      keyMap = "us";
    };
 
-  # Enable the KDE Plasma Desktop Environment.
   services.xserver = {
     enable = true;
     libinput.enable = true;
@@ -54,6 +55,16 @@ in
        user = "jasonk";
      };
   };
+
+  # Backup incase Qtile dies
+  # services.xserver = {
+  #   enable = true;
+  #   desktopManager = {
+  #     xterm.enable = false;
+  #     xfce.enable = true;
+  #   };
+  #   displayManager.defaultSession = "xfce";
+  # };
 
   services.xserver.videoDrivers = [ "nvidia" ];
   # Configure keymap in X11
@@ -80,7 +91,7 @@ in
     users.jasonk = {
       isNormalUser = true;
       description = "jasonk";
-      extraGroups = [ "networkmanager" "wheel" "docker"];
+      extraGroups = [ "networkmanager" "wheel" "docker" "mpd"];
       packages = with pkgs; [
         firefox
         kate
@@ -106,17 +117,17 @@ in
       #Misc
       appimage-run
       picom
-      chromium
       mono
       qbittorrent
-      youtube-dl
+      yt-dlp
       vmware-workstation
       libsForQt5.kdeconnect-kde
       gnome.gnome-calendar
       gnome-online-accounts
       gnome.gnome-keyring
       steam-run
-
+      tmux
+      cava
 
       #Documentation
       libreoffice
@@ -130,6 +141,11 @@ in
       flameshot
       vlc
       spotify
+      downonspot
+      musikcube
+      puddletag
+      picard
+      clementine
 
       #Gaming
       lutris
@@ -198,7 +214,6 @@ in
       direnv
       postman
       mysql-workbench
-      rabbitmq-server
 
       #Virtualization
       docker-compose
@@ -244,6 +259,10 @@ in
 
     programs.bash ={
       enable = true;
+      shellAliases = {
+        "yt-dlp-playlist" = "yt-dlp --extract-audio --audio-format mp3 -o '%(playlist)s/%(playlist_index)s - %(title)s.%(ext)s' --sleep-interval 30"; 
+        "yt-dlp-single" = "yt-dlp --extract-audio --audio-format mp3 -o '%(title)s.%(ext)s'";
+      };
       initExtra =
       ''
         init-python-airflow () {
@@ -256,6 +275,10 @@ in
         }
         init-elixir () {
           cp ~/NixOS_DotFiles/nix-shells/elixir/shell.nix ./
+          nix-shell
+        }
+        init-livebook () {
+          cp ~/NixOS_DotFiles/nix-shells/livebook/shell.nix ./
           nix-shell
         }
         init-java () {
@@ -271,7 +294,8 @@ in
           cd /home/jasonk/Downloads/iPhone
           for f in *.heic; do magick $f -quality 95 $f.jpg;done
           rm /home/jasonk/Downloads/iPhone/*.heic
-        }      
+        }    
+
 
       '';
     };
@@ -300,7 +324,7 @@ in
           jdinhlife.gruvbox
           arrterian.nix-env-selector
           jnoortheen.nix-ide
-          ms-python.python
+          bbenoist.nix
           ms-azuretools.vscode-docker
           redhat.vscode-yaml
           yzhang.markdown-all-in-one
@@ -327,10 +351,6 @@ in
       enableOnBoot = true;
     };
     vmware.host.enable = true;
-    # virtualbox.host = {
-    #   enable = true;
-    #   enableExtensionPack = true;
-    # };
   };
 
   fonts = {

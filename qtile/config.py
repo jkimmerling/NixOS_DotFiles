@@ -44,7 +44,7 @@ def autostart():
 
 mod = "mod4"
 terminal = "alacritty"
-browser = "firefox"
+browser = "brave"
 launcher = "ulauncher"
 
 colors = [["#25503d", "#25503d"], # background
@@ -142,6 +142,7 @@ group_names = [("Web", {'layout': 'monadtall'}),
                ("Dev", {'layout': 'columns'}),
                ("Sys", {'layout': 'monadtall'}),
                ("Doc", {'layout': 'monadtall'}),
+               ("Mus", {'layout': 'monadtall'}),
                ("Gam", {'layout': 'max'})]
 
 groups = [Group(name, **kwargs) for name, kwargs in group_names]

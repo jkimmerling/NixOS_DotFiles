@@ -12,10 +12,10 @@ let
     curl
     libiconv
     elixir_1_14
+    erlang
     glibcLocales
     nodejs-18_x
     yarn
-    postgresql
   ];
 
   inputs = basePackages
