@@ -39,8 +39,13 @@ let
     export LANG=en_US.UTF-8
     export ERL_AFLAGS="-kernel shell_history enabled"
 
-    mix do local.rebar --force, local.hex --force
-    mix escript.install hex livebook
+    if ! command -v livebook &> /dev/null
+    then
+      mix do local.rebar --force, local.hex --force
+      mix escript.install hex --force livebook
+    else
+      echo "Livebook already installed, skipping installation"
+    fi    
 
     livebook server
   '';
