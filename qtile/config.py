@@ -44,7 +44,7 @@ def autostart():
 
 mod = "mod4"
 terminal = "alacritty"
-browser = "brave"
+browser = "firefox"
 launcher = "ulauncher"
 
 colors = [["#25503d", "#25503d"], # background
@@ -111,7 +111,8 @@ keys = [
     Key([mod], "c", lazy.spawn("code"), desc="Launch VSCode"),
     Key([mod], "i", lazy.spawn("idea-community"), desc="Launch Intellij Idea"),
     Key([mod], "f", lazy.spawn("thunar"), desc="Launch File Manager"),
-    Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Obsidian-1.3.3.AppImage"), desc="Launch Obsidian"),
+    # Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Obsidian-1.4.13.AppImage"), desc="Launch Obsidian"),  n
+    Key([mod], "o", lazy.spawn(f"flatpak run md.obsidian.Obsidian"), desc="Launch Obsidian"),
     Key([mod], "a", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Anytype-0.33.2.AppImage"), desc="Launch AnyType"),
     Key([mod], "p", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/pyfa-v2.48.0-linux.AppImage"), desc="Launch PYFA"),
     # Screenshots

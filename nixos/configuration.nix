@@ -22,17 +22,40 @@ in
       <home-manager/nixos>
     ];
 
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.allowBroken = true;
+  nixpkgs = {
+    config = {
+      allowUnfree = true;
+      allowBroken = true;
+    };
+    overlays = [
+      (self: super: {
+        fcitx-engines = pkgs.fcitx5;
+      })
+    ];
+  };
 
   # Bootloader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/nvme0n1";
-  boot.loader.grub.useOSProber = true;
+  boot = {
+    loader = {
+      grub = {
+        enable = true;
+        device = "/dev/nvme0n1";
+        useOSProber = true;
+      };
+    };
+  };
 
   # Enable networking
-  networking.hostName = "nixos";  
-  networking.networkmanager.enable = true;
+  networking = {
+    firewall = {
+      allowedTCPPortRanges = [ { from = 1714; to = 1764; } ]; 
+      allowedUDPPortRanges = [ { from = 1714; to = 1764; } ];
+    };
+    hostName = "nixos";
+    networkmanager = {
+      enable = true;
+    };
+  };
 
   # Set your time zone.
   time.timeZone = "America/Rainy_River";
@@ -44,47 +67,36 @@ in
      keyMap = "us";
    };
 
-  services.xserver = {
-    enable = true;
-    libinput.enable = true;
-    displayManager.sddm.enable = true; #TODO remove
-    displayManager.sddm.autoNumlock = true;
-    windowManager.qtile.enable = true; 
-    displayManager.autoLogin = {
-       enable = true;
-       user = "jasonk";
-     };
-  };
-
-  # Backup incase Qtile dies
-  # services.xserver = {
-  #   enable = true;
-  #   desktopManager = {
-  #     xterm.enable = false;
-  #     xfce.enable = true;
-  #   };
-  #   displayManager.defaultSession = "xfce";
-  # };
-
-  services.xserver.videoDrivers = [ "nvidia" ];
-  # Configure keymap in X11
-  services.xserver = {
-    layout = "us";
-    xkbVariant = "";
-  };
-
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
 
   # Enable sound.
   sound.enable = true;
-  hardware.pulseaudio.enable = true;
-  hardware.bluetooth.enable = true;
-  services.blueman.enable = true;
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+  # Audio and Bluetooth
+  hardware = {
+    bluetooth = {
+      enable = true;
+    };
+    pulseaudio = {
+      enable = true;
+    };
+  };
 
+  # GFX
+  hardware = {
+    opengl = {
+      driSupport = true;
+      driSupport32Bit = true;
+    };
+    nvidia.prime = {
+    offload.enable = true;
+    # sync.enable = true;
+    # Bus ID of the Intel GPU. You can find it using lspci, either unde>
+    intelBusId = "PCI:0:2:0";
+    # Bus ID of the NVIDIA GPU. You can find it using lspci, either und>
+    nvidiaBusId = "PCI:1:0:0";
+    };
+  };
+  
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users = {
     extraGroups.vboxusers.members = [ "jasonk" ];
@@ -126,7 +138,6 @@ in
       gnome-online-accounts
       gnome.gnome-keyring
       steam-run
-      tmux
       cava
 
       #Documentation
@@ -145,7 +156,7 @@ in
       musikcube
       puddletag
       picard
-      clementine
+      obs-studio
 
       #Gaming
       lutris
@@ -158,6 +169,7 @@ in
       #Networking
       networkmanagerapplet
       netcat-gnu
+      lsof
 
       #Hardware
       pciutils
@@ -212,8 +224,10 @@ in
       jetbrains.idea-community
       jetbrains.pycharm-community
       direnv
-      postman
+      # postman
       mysql-workbench
+      redisinsight
+      pgadmin4
 
       #Virtualization
       docker-compose
@@ -243,9 +257,7 @@ in
         name = "gruvbox-dark";
         package = pkgs.gruvbox-dark-gtk;
       };
-    };
-
-    
+    };    
 
     programs.kitty = {
       enable = true;
@@ -262,6 +274,10 @@ in
       shellAliases = {
         "yt-dlp-playlist" = "yt-dlp --extract-audio --audio-format mp3 -o '%(playlist)s/%(playlist_index)s - %(title)s.%(ext)s' --sleep-interval 30"; 
         "yt-dlp-single" = "yt-dlp --extract-audio --audio-format mp3 -o '%(title)s.%(ext)s'";
+        "ssh-postgres" = "ssh -i .ssh/aws-extraction.pem jasonk@3.129.29.145";
+        "ssh-extraction" = "ssh -i .ssh/aws-extraction.pem jasonk@18.190.117.252";
+        "ssh-redis" = "ssh -i .ssh/aws-extraction.pem jasonk@18.190.131.227";
+        "ssh-api" = "ssh -i .ssh/aws-extraction.pem jasonk@164.90.154.123";
       };
       initExtra =
       ''
@@ -275,6 +291,10 @@ in
         }
         init-elixir () {
           cp ~/NixOS_DotFiles/nix-shells/elixir/shell.nix ./
+          nix-shell
+        }
+        init-phoenix () {
+          cp ~/NixOS_DotFiles/nix-shells/phoenix/shell.nix ./
           nix-shell
         }
         init-livebook () {
@@ -294,22 +314,17 @@ in
           cd /home/jasonk/Downloads/iPhone
           for f in *.heic; do magick $f -quality 95 $f.jpg;done
           rm /home/jasonk/Downloads/iPhone/*.heic
-        }    
+        }  
+
+        function code-extraction() {
+          cd /home/jasonk/Development/Elixir/Projects/extraction
+          nix-shell
+          code .
+        }  
 
 
       '';
     };
-
-
-    services.picom = {
-      enable = true;   
-      settings.inactiveOpacity = 0.8; 
-      settings.corner-radius = 5;
-        #   opacity-rule = [
-        #       "80:class_g = 'Alacritty'",
-        #   ];
-        # '';
-    }; 
 
     programs.rofi = {
       enable = true;
@@ -329,6 +344,7 @@ in
           redhat.vscode-yaml
           yzhang.markdown-all-in-one
           betterthantomorrow.calva
+          phoenixframework.phoenix
       ];
       userSettings = {
           "editor.fontSize" = 14;
@@ -341,9 +357,6 @@ in
       };
     }; 
   };
-
-  
-  services.printing.drivers = [ pkgs.hplip ];
 
   virtualisation = {
     docker = {
@@ -362,21 +375,139 @@ in
     ];
   };  
 
-  services.gvfs.enable = true; 
+  services ={
+    blueman = {
+      enable = true;
+    };
+    flatpak = {
+      enable = true;
+    };
+    gvfs = {
+      enable = true;
+    };
+    openssh = {
+      enable = true;
+    };
+    picom = {
+      enable = true;  
+      settings = {
+        inactiveOpacity = 0.8; 
+        corner-radius = 5;
+      };
+    }; 
+    power-profiles-daemon = {
+      enable = false;
+    };
+    printing = {
+      enable = true;
+      drivers = [ pkgs.hplip ];
+    };
+    tlp = {
+      enable = true;
+      settings = {
+        CPU_SCALING_GOVERNOR_ON_AC = "performance";
+        CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
 
+        CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+        CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
 
-  services.flatpak.enable = true;
+        CPU_MIN_PERF_ON_AC = 0;
+        CPU_MAX_PERF_ON_AC = 100;
+        CPU_MIN_PERF_ON_BAT = 0;
+        CPU_MAX_PERF_ON_BAT = 80;
+
+        START_CHARGE_THRESH_BAT0 = 75;
+        STOP_CHARGE_THRESH_BAT0 = 80;
+
+      };
+    };
+    xserver = {
+      enable = true;
+      displayManager = {
+        autoLogin = {
+          enable = true;
+          user = "jasonk";
+        };
+        sddm = {
+          enable = true;
+          autoNumlock = true;
+        };
+      };
+      layout = "us";
+      libinput = {
+        enable =true;
+      };
+      xkbVariant = "";    
+      videoDrivers = [ "nvidia" ];  
+      windowManager = {
+        qtile = {
+          enable = true;
+        };
+      };
+    };
+  };
+
+  # Backup incase Qtile dies
+  # services.xserver = {
+  #   enable = true;
+  #   desktopManager = {
+  #     xterm.enable = false;
+  #     xfce.enable = true;
+  #   };
+  #   displayManager.defaultSession = "xfce";
+  # };
+
+  # services.xserver.videoDrivers = [ "nvidia" ];
+  # Configure keymap in X11
+  # services.xserver = {
+  #   layout = "us";
+  #   xkbVariant = "";
+  # };
+
+  # Enable CUPS to print documents.
+  # services.printing.enable = true;
+  # services.printing.drivers = [ pkgs.hplip ];
+
+  # services.gvfs.enable = true; 
+
+  
+
+  # services.flatpak.enable = true;
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal-wlr
       xdg-desktop-portal-kde
       xdg-desktop-portal-gtk
-    ];
-    
+    ];    
   };
-  networking.firewall.allowedTCPPortRanges = [ { from = 1714; to = 1764; } ]; 
-  networking.firewall.allowedUDPPortRanges = [ { from = 1714; to = 1764; } ];
+
+  # services.power-profiles-daemon.enable = false;
+
+  # services.tlp = {
+  #     enable = true;
+  #     settings = {
+  #       CPU_SCALING_GOVERNOR_ON_AC = "performance";
+  #       CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+
+  #       CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+  #       CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+
+  #       CPU_MIN_PERF_ON_AC = 0;
+  #       CPU_MAX_PERF_ON_AC = 100;
+  #       CPU_MIN_PERF_ON_BAT = 0;
+  #       CPU_MAX_PERF_ON_BAT = 80;
+
+  #       START_CHARGE_THRESH_BAT0 = 75;
+  #       STOP_CHARGE_THRESH_BAT0 = 80;
+
+  #     };
+  # };
+
+  # Enable the OpenSSH daemon.
+  # services.openssh.enable = true;
+
+  
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -386,33 +517,16 @@ in
     libpng
     libsecret
     appimage-run
+    linuxKernel.packages.linux_zen.acpi_call
   ];
 
-  hardware = {
-    opengl = {
-      driSupport = true;
-      driSupport32Bit = true;
-    };
-    nvidia.prime = {
-    offload.enable = true;
-    # sync.enable = true;
-    # Bus ID of the Intel GPU. You can find it using lspci, either unde>
-    intelBusId = "PCI:0:2:0";
-    # Bus ID of the NVIDIA GPU. You can find it using lspci, either und>
-    nvidiaBusId = "PCI:1:0:0";
-    };
-  };
+  
 
-  # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
+  
 
   system.stateVersion = "22.05"; # Did you read the comment?
 
-  nixpkgs.overlays = [
-    (self: super: {
-      fcitx-engines = pkgs.fcitx5;
-    })
-  ];
+  
 
   nix.settings.auto-optimise-store = true;
   nix.gc = {

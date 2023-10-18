@@ -6,4 +6,5 @@ blueman-applet &
 feh --recursive --bg-scale --randomize ~/NixOS_DotFiles/Wallpapers/* &
 picom &
 flameshot &
+kdeconnect-indicator &
 xdg-settings set default-web-browser brave.desktop
