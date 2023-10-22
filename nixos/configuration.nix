@@ -131,14 +131,13 @@ in
       picom
       mono
       qbittorrent
-      yt-dlp
       vmware-workstation
       libsForQt5.kdeconnect-kde
       gnome.gnome-calendar
       gnome-online-accounts
       gnome.gnome-keyring
       steam-run
-      cava
+      ventoy-full
 
       #Documentation
       libreoffice
@@ -157,6 +156,8 @@ in
       puddletag
       picard
       obs-studio
+      cava
+      yt-dlp
 
       #Gaming
       lutris
