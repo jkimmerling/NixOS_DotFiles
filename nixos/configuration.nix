@@ -14,6 +14,7 @@ let
     exec -a "$0" "$@"
   '';
 
+  nix-gaming = import (builtins.fetchTarball "https://github.com/fufexan/nix-gaming/archive/master.tar.gz");
 in
 {
   imports =
@@ -34,16 +35,14 @@ in
     ];
   };
 
-  # Bootloader.
-  boot = {
-    loader = {
-      grub = {
-        enable = true;
-        device = "/dev/nvme0n1";
-        useOSProber = true;
-      };
-    };
+  nix.settings = {
+    substituters = ["https://nix-gaming.cachix.org"];
+    trusted-public-keys = ["nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="];
   };
+
+  # Bootloader.
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 
   # Enable networking
   networking = {
@@ -82,19 +81,27 @@ in
   };
 
   # GFX
-  hardware = {
-    opengl = {
-      driSupport = true;
-      driSupport32Bit = true;
-    };
-    nvidia.prime = {
-    offload.enable = true;
-    # sync.enable = true;
-    # Bus ID of the Intel GPU. You can find it using lspci, either unde>
-    intelBusId = "PCI:0:2:0";
-    # Bus ID of the NVIDIA GPU. You can find it using lspci, either und>
-    nvidiaBusId = "PCI:1:0:0";
-    };
+  hardware.opengl = {
+    enable = true;
+    driSupport = true;
+    driSupport32Bit = true;
+  };
+
+  hardware.nvidia = {
+    modesetting.enable = true;
+    powerManagement.enable = false;
+    powerManagement.finegrained = false;
+    open = true;
+    nvidiaSettings = true;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    #nvidia.prime = {
+    #  offload.enable = true;
+    #  # sync.enable = true;
+    #  # Bus ID of the Intel GPU. You can find it using lspci, either unde>
+    #  intelBusId = "PCI:0:2:0";
+    #  # Bus ID of the NVIDIA GPU. You can find it using lspci, either und>
+    #  nvidiaBusId = "PCI:1:0:0";
+    #};
   };
   
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -105,11 +112,11 @@ in
       description = "jasonk";
       extraGroups = [ "networkmanager" "wheel" "docker" "mpd"];
       packages = with pkgs; [
-        firefox
         kate
         git
         dconf
         brave
+        firefox
       ];
     };
   };
@@ -138,6 +145,7 @@ in
       gnome.gnome-keyring
       steam-run
       ventoy-full
+      chromium
 
       #Documentation
       libreoffice
@@ -227,7 +235,7 @@ in
       direnv
       # postman
       mysql-workbench
-      redisinsight
+      #redisinsight
       pgadmin4
 
       #Virtualization
@@ -253,12 +261,22 @@ in
 
     gtk = {
       enable = true;
-      font.name = "Droid Sans Mono 18";
+      font.name = "Droid Sans Mono 8";
       theme = {
         name = "gruvbox-dark";
         package = pkgs.gruvbox-dark-gtk;
       };
     };    
+
+    # programs.firefox = {
+    #   profiles = {
+    #     jasonk = {
+    #       settings = {
+    #         "browser.display.os-zoom-behavior" = 0;
+    #       };
+    #     };
+    #   };
+    # };
 
     programs.kitty = {
       enable = true;
@@ -348,8 +366,8 @@ in
           phoenixframework.phoenix
       ];
       userSettings = {
-          "editor.fontSize" = 14;
-          "window.zoomLevel" = 4;
+          "editor.fontSize" = 10;
+          "window.zoomLevel" = -1;
           "workbench.colorTheme" = "Gruvbox Dark Hard";
           "terminal.integrated.enableMultiLinePasteWarning" = false;
           "editor.detectIndentation" = false;
@@ -360,11 +378,11 @@ in
   };
 
   virtualisation = {
-    docker = {
-      enable = true;
-      enableOnBoot = true;
-    };
-    vmware.host.enable = true;
+   docker = {
+     enable = true;
+     enableOnBoot = true;
+   };
+  #  vmware.host.enable = true;
   };
 
   fonts = {
@@ -381,6 +399,9 @@ in
       enable = true;
     };
     flatpak = {
+      enable = true;
+    };
+    fwupd = {
       enable = true;
     };
     gvfs = {
@@ -402,6 +423,9 @@ in
     printing = {
       enable = true;
       drivers = [ pkgs.hplip ];
+    };
+    thermald = {
+      enable = true;
     };
     tlp = {
       enable = true;
@@ -439,7 +463,7 @@ in
         enable =true;
       };
       xkbVariant = "";    
-      videoDrivers = [ "nvidia" ];  
+      videoDrivers = [ "nvidia" "amdgpu" ];  
       windowManager = {
         qtile = {
           enable = true;
@@ -448,32 +472,6 @@ in
     };
   };
 
-  # Backup incase Qtile dies
-  # services.xserver = {
-  #   enable = true;
-  #   desktopManager = {
-  #     xterm.enable = false;
-  #     xfce.enable = true;
-  #   };
-  #   displayManager.defaultSession = "xfce";
-  # };
-
-  # services.xserver.videoDrivers = [ "nvidia" ];
-  # Configure keymap in X11
-  # services.xserver = {
-  #   layout = "us";
-  #   xkbVariant = "";
-  # };
-
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
-  # services.printing.drivers = [ pkgs.hplip ];
-
-  # services.gvfs.enable = true; 
-
-  
-
-  # services.flatpak.enable = true;
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
@@ -483,51 +481,18 @@ in
     ];    
   };
 
-  # services.power-profiles-daemon.enable = false;
-
-  # services.tlp = {
-  #     enable = true;
-  #     settings = {
-  #       CPU_SCALING_GOVERNOR_ON_AC = "performance";
-  #       CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-
-  #       CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
-  #       CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
-
-  #       CPU_MIN_PERF_ON_AC = 0;
-  #       CPU_MAX_PERF_ON_AC = 100;
-  #       CPU_MIN_PERF_ON_BAT = 0;
-  #       CPU_MAX_PERF_ON_BAT = 80;
-
-  #       START_CHARGE_THRESH_BAT0 = 75;
-  #       STOP_CHARGE_THRESH_BAT0 = 80;
-
-  #     };
-  # };
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
   environment.systemPackages = with pkgs; [
     nvidia-offload 
+    xdg-desktop-portal-gtk
     pkgs.libglvnd
     libpng
     libsecret
     appimage-run
     linuxKernel.packages.linux_zen.acpi_call
+    nix-gaming.packages.${pkgs.hostPlatform.system}.star-citizen
   ];
-
   
-
-  
-
-  system.stateVersion = "22.05"; # Did you read the comment?
-
-  
+  system.stateVersion = "23.05"; # Did you read the comment?
 
   nix.settings.auto-optimise-store = true;
   nix.gc = {

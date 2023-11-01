@@ -44,7 +44,7 @@ def autostart():
 
 mod = "mod4"
 terminal = "alacritty"
-browser = "firefox"
+browser = "brave"
 launcher = "ulauncher"
 
 colors = [["#25503d", "#25503d"], # background
@@ -112,9 +112,9 @@ keys = [
     Key([mod], "i", lazy.spawn("idea-community"), desc="Launch Intellij Idea"),
     Key([mod], "f", lazy.spawn("thunar"), desc="Launch File Manager"),
     # Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Obsidian-1.4.13.AppImage"), desc="Launch Obsidian"),  n
-    Key([mod], "o", lazy.spawn(f"flatpak run md.obsidian.Obsidian"), desc="Launch Obsidian"),
-    Key([mod], "a", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Anytype-0.33.2.AppImage"), desc="Launch AnyType"),
-    Key([mod], "p", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/pyfa-v2.48.0-linux.AppImage"), desc="Launch PYFA"),
+    Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/AppImages/Obsidian-1.4.16.AppImage"), desc="Launch Obsidian"),
+    Key([mod], "a", lazy.spawn(f"appimage-run /home/{USERNAME}/AppImages/Anytype-0.33.2.AppImage"), desc="Launch AnyType"),
+    Key([mod], "p", lazy.spawn(f"appimage-run /home/{USERNAME}/AppImages/pyfa-v2.48.0-linux.AppImage"), desc="Launch PYFA"),
     # Screenshots
     Key([], "Print", lazy.spawn("flameshot gui"), desc="Flameshot Capture"),
     # OS level commands/menus    
@@ -424,6 +424,9 @@ floating_layout = layout.Floating(float_rules=[
     Match(wm_class='ulauncher'),
     Match(wm_class='ffxiv_dx11.exe'),
     Match(wm_class='kitty'),
+    Match(wm_class='clicksaver.exe'),
+    Match(wm_class='itemassistant.exe'),
+    Match(wm_class='anarchy.exe'),
     # Match(wm_class='launcher.exe'),
     ],
     border_width=0,
