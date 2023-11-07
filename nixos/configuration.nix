@@ -53,6 +53,9 @@ in
     hostName = "nixos";
     networkmanager = {
       enable = true;
+      wifi = {
+        powersave = false;
+      };
     };
   };
 
@@ -77,6 +80,12 @@ in
     };
     pulseaudio = {
       enable = true;
+    };
+    enableRedistributableFirmware = true;
+    cpu = {
+      amd = {
+        updateMicrocode = true;
+      };
     };
   };
 
@@ -138,20 +147,13 @@ in
       picom
       mono
       qbittorrent
-      vmware-workstation
       libsForQt5.kdeconnect-kde
-      gnome.gnome-calendar
-      gnome-online-accounts
-      gnome.gnome-keyring
-      steam-run
       ventoy-full
-      chromium
 
       #Documentation
       libreoffice
       okular
       mcomix3
-      anytype
       marktext
       calibre
 
@@ -241,6 +243,7 @@ in
       #Virtualization
       docker-compose
       virt-manager
+      vmware-workstation
 
       #File manager related
       xfce.exo
@@ -267,16 +270,6 @@ in
         package = pkgs.gruvbox-dark-gtk;
       };
     };    
-
-    # programs.firefox = {
-    #   profiles = {
-    #     jasonk = {
-    #       settings = {
-    #         "browser.display.os-zoom-behavior" = 0;
-    #       };
-    #     };
-    #   };
-    # };
 
     programs.kitty = {
       enable = true;
@@ -418,7 +411,7 @@ in
       };
     }; 
     power-profiles-daemon = {
-      enable = false;
+      enable = true;
     };
     printing = {
       enable = true;
@@ -428,7 +421,7 @@ in
       enable = true;
     };
     tlp = {
-      enable = true;
+      enable = false;
       settings = {
         CPU_SCALING_GOVERNOR_ON_AC = "performance";
         CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
@@ -487,7 +480,6 @@ in
     pkgs.libglvnd
     libpng
     libsecret
-    appimage-run
     linuxKernel.packages.linux_zen.acpi_call
     nix-gaming.packages.${pkgs.hostPlatform.system}.star-citizen
   ];

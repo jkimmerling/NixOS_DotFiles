@@ -12,8 +12,11 @@ mkShell {
   buildInputs = with pythonPackages; [
     # Python requirements (enough to get a virtualenv going).
     pandas
+    matplotlib
+    scikit-learn
+    numpy
     ipykernel
-    jupyter
+    jupyterlab
     pytest
     setuptools
     wheel
