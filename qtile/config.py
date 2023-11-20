@@ -135,6 +135,15 @@ keys = [
         lazy.spawn("amixer set Master 1+ toggle")
     ),
 
+    # Brightness Control
+    Key(
+        [], "XF86MonBrightnessUp",
+        lazy.spawn("xbacklight +5")
+    ),
+    Key(
+        [], "XF86MonBrightnessDown",
+        lazy.spawn("xbacklight -5")
+    ),
 
 ]
 

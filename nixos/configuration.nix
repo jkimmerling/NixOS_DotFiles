@@ -44,6 +44,11 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  boot.kernelModules = [ "88x2bu" ];
+  boot.extraModulePackages = [
+    config.boot.kernelPackages.rtl88x2bu
+  ];
+
   # Enable networking
   networking = {
     firewall = {
@@ -132,6 +137,7 @@ in
 
   programs.dconf.enable = true;
 
+
   home-manager.users.jasonk = { pkgs, ... }: {
     home.username = "jasonk";
     home.stateVersion = "23.05";
@@ -143,12 +149,14 @@ in
 
     home.packages = with pkgs; [ 
       #Misc
+      usbutils
       appimage-run
       picom
       mono
       qbittorrent
       libsForQt5.kdeconnect-kde
       ventoy-full
+      zoom-us
 
       #Documentation
       libreoffice
@@ -176,6 +184,7 @@ in
       winetricks
       mesa
       glxinfo
+      path-of-building  
 
       #Networking
       networkmanagerapplet
@@ -482,6 +491,7 @@ in
     libsecret
     linuxKernel.packages.linux_zen.acpi_call
     nix-gaming.packages.${pkgs.hostPlatform.system}.star-citizen
+    xorg.xbacklight
   ];
   
   system.stateVersion = "23.05"; # Did you read the comment?
