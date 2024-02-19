@@ -15,7 +15,9 @@ mkdir Development
 git clone git@github.com:jkimmerling/NixOS_DotFiles.git
 
 sudo mv /etc/nixos/configuration.nix /etc/nixos/configuration.nix-BAK
+sudo mv /etc/nixos/hardware-configuration.nix /etc/nixos/hardware-configuration.nix-BAK
 sudo ln -s /home/$username/NixOS_DotFiles/nixos/configuration.nix /etc/nixos/configuration.nix
+sudo ln -s /home/$username/NixOS_DotFiles/nixos/hardware-configuration.nix /etc/nixos/hardware-configuration.nix
 
 sed -i "s/jasonk/$username" /home/$username/NixOS_DotFiles/nixos/configuration.nix
 

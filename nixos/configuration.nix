@@ -23,8 +23,12 @@ in
       <home-manager/nixos>
     ];
 
+
   nixpkgs = {
     config = {
+      permittedInsecurePackages = [
+                "teams-1.5.00.23861"
+              ];
       allowUnfree = true;
       allowBroken = true;
     };
@@ -157,6 +161,7 @@ in
       libsForQt5.kdeconnect-kde
       ventoy-full
       zoom-us
+      # teams
 
       #Documentation
       libreoffice
@@ -246,8 +251,11 @@ in
       direnv
       # postman
       mysql-workbench
-      #redisinsight
-      pgadmin4
+      snowsql
+      # redisinsight
+      # pgadmin4
+      # pgadmin4-desktopmode
+      binutils
 
       #Virtualization
       docker-compose
@@ -311,15 +319,18 @@ in
           nix-shell
         }
         init-elixir () {
-          cp ~/NixOS_DotFiles/nix-shells/elixir/shell.nix ./
+          cp ~/NixOS_DotFiles/nix-shells/elixir/basic/shell.nix ./
+          cp ~/NixOS_DotFiles/nix-shells/elixir/.gitignore .
           nix-shell
         }
         init-phoenix () {
-          cp ~/NixOS_DotFiles/nix-shells/phoenix/shell.nix ./
+          cp ~/NixOS_DotFiles/nix-shells/elixir/phoenix/shell.nix ./
+          cp ~/NixOS_DotFiles/nix-shells/elixir/.gitignore .
           nix-shell
         }
         init-livebook () {
-          cp ~/NixOS_DotFiles/nix-shells/livebook/shell.nix ./
+          cp ~/NixOS_DotFiles/nix-shells/elixir/livebook/shell.nix ./
+          cp ~/NixOS_DotFiles/nix-shells/elixir/.gitignore .
           nix-shell
         }
         init-java () {
@@ -390,7 +401,7 @@ in
   fonts = {
     fontDir.enable = true;
     enableGhostscriptFonts = true;
-    fonts = with pkgs; [
+    packages = with pkgs; [
       font-awesome
       weather-icons
     ];
@@ -460,11 +471,13 @@ in
           autoNumlock = true;
         };
       };
-      layout = "us";
       libinput = {
         enable =true;
       };
-      xkbVariant = "";    
+      xkb = {
+        variant = "";
+        layout = "us";
+      };
       videoDrivers = [ "nvidia" "amdgpu" ];  
       windowManager = {
         qtile = {
@@ -475,6 +488,7 @@ in
   };
 
   xdg.portal = {
+    config.common.default = "*";
     enable = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal-wlr
@@ -492,6 +506,9 @@ in
     linuxKernel.packages.linux_zen.acpi_call
     nix-gaming.packages.${pkgs.hostPlatform.system}.star-citizen
     xorg.xbacklight
+    openssl
+    gnumake
+    libiodbc
   ];
   
   system.stateVersion = "23.05"; # Did you read the comment?

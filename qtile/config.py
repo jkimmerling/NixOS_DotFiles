@@ -111,8 +111,10 @@ keys = [
     Key([mod], "c", lazy.spawn("code"), desc="Launch VSCode"),
     Key([mod], "i", lazy.spawn("idea-community"), desc="Launch Intellij Idea"),
     Key([mod], "f", lazy.spawn("thunar"), desc="Launch File Manager"),
+    # Elixir
+    Key([mod], "e", lazy.spawn(f'alacritty --working-directory /home/{USERNAME}/Development/Elixir/playground -e "nix-shell"'), desc="Launch Elixir Playground"),
     # Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/app_images/Obsidian-1.4.13.AppImage"), desc="Launch Obsidian"),  n
-    Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/AppImages/Obsidian-1.4.16.AppImage"), desc="Launch Obsidian"),
+    Key([mod], "o", lazy.spawn(f"appimage-run /home/{USERNAME}/AppImages/Obsidian-1.5.3.AppImage"), desc="Launch Obsidian"),
     Key([mod], "a", lazy.spawn(f"appimage-run /home/{USERNAME}/AppImages/Anytype-0.33.2.AppImage"), desc="Launch AnyType"),
     Key([mod], "p", lazy.spawn(f"appimage-run /home/{USERNAME}/AppImages/pyfa-v2.48.0-linux.AppImage"), desc="Launch PYFA"),
     # Screenshots
