@@ -212,8 +212,8 @@
   # ===== SYSTEM PACKAGES =====
   environment.systemPackages = with pkgs; [
     nodejs_24
-    (callPackage ./codex.nix {})  # Build Codex from source
-    claude-code
+    (callPackage ./derivations/codex.nix {})  # Build Codex from source
+    (callPackage ./derivations/claude-code-latest.nix {})
     vulkan-tools  # Fix vulkaninfo command
 
     # GNOME Shell Extensions
