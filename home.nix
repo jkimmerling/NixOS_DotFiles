@@ -30,6 +30,15 @@ let
     cd /home/jasonk/Dot_Files/MuhRO
     exec ./Muh_Patcher "$@"
   '';
+
+  anarchyOnlineLauncher = pkgs.writeShellScriptBin "anarchy-online-launch" ''
+    cd "/home/jasonk/Games/anarchy-online/drive_c/Funcom/Anarchy Online"
+    export __NV_PRIME_RENDER_OFFLOAD=1
+    export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    export VK_ICD_FILENAMES="/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json:/run/opengl-driver-32/share/vulkan/icd.d/nvidia_icd.i686.json"
+    export WINEPREFIX="/home/jasonk/Games/anarchy-online"
+    exec wine Anarchy.exe "$@"
+  '';
 in
 {
   # ===== HOME MANAGER CONFIGURATION =====
@@ -65,6 +74,7 @@ in
     wineWowPackages.stable
     winetricks
     muhroPatcher
+    anarchyOnlineLauncher
 
     # Wine/X11 clipboard utilities
     xdotool
@@ -90,7 +100,23 @@ in
     samba
     krb5
 
-    # === Caelestia Shell Dependencies ===
+    # === Caelestia Shell & Applications ===
+    # Core Caelestia apps
+    xfce.thunar      # File manager
+    foot             # Terminal
+    fuzzel           # Application launcher
+
+    # Caelestia utilities
+    fastfetch        # System info
+    btop             # System monitor
+    cliphist         # Clipboard manager
+    eza              # Modern ls replacement
+    hyprpicker       # Color picker
+    grim             # Screenshot tool
+    slurp            # Region selector
+    swappy           # Screenshot editor
+
+    # Caelestia shell dependencies
     ddcutil
     brightnessctl
     libcava
@@ -157,9 +183,95 @@ in
     nix-direnv.enable = true;
   };
 
+  # ===== CAELESTIA APPLICATIONS =====
+
+  # Starship prompt (Caelestia default)
+  programs.starship = {
+    enable = true;
+    enableFishIntegration = true;
+    enableBashIntegration = true;
+  };
+
+  # Fastfetch system info
+  programs.fastfetch = {
+    enable = true;
+  };
+
+  # BTop system monitor
+  programs.btop = {
+    enable = true;
+    settings = {
+      color_theme = "Default";
+      theme_background = false;
+    };
+  };
+
+  # Foot terminal (Caelestia default)
+  programs.foot = {
+    enable = true;
+    settings = {
+      main = {
+        font = "CaskaydiaCove Nerd Font:size=11";
+        dpi-aware = "yes";
+      };
+      colors = {
+        alpha = 0.95;
+      };
+      scrollback = {
+        lines = "20000";
+      };
+    };
+  };
+
+  xdg.desktopEntries.anarchy-online = {
+    name = "Anarchy Online";
+    genericName = "MMORPG";
+    comment = "Launch Anarchy Online with NVIDIA PRIME and Wine";
+    exec = "anarchy-online-launch";
+    terminal = false;
+    categories = [ "Game" ];
+  };
+
+  xdg.desktopEntries.muhro = {
+    name = "MuhRO Patcher";
+    genericName = "Ragnarok Online Patcher";
+    comment = "Launch MuhRO patcher with required GTK environment";
+    exec = "muhro-patcher";
+    terminal = false;
+    categories = [ "Game" ];
+  };
+
+  xdg.desktopEntries.anarchy-online-item-assistant = {
+    name = "Anarchy Online Item Assistant";
+    genericName = "Item Assistant";
+    comment = "Launch the AO Item Assistant helper tool";
+    exec = ''
+      env WINEPREFIX=/home/jasonk/Games/anarchy-online wine "/home/jasonk/Games/anarchy-online/drive_c/Program Files/AO Item Assistant+/ItemAssistant.exe"
+    '';
+    terminal = false;
+    categories = [ "Utility" "Game" ];
+  };
+
   # ===== SHELL CONFIGURATION =====
-  
-  # Bash configuration
+
+  # Fish shell configuration (Caelestia default)
+  programs.fish = {
+    enable = true;
+    shellAliases = {
+      ll = "eza -l";
+      la = "eza -la";
+      ls = "eza";
+      ".." = "cd ..";
+      rebuild = "sudo nixos-rebuild switch --flake /home/jasonk/Dot_Files#nixos";
+      update = "sudo nixos-rebuild switch --flake /home/jasonk/Dot_Files#nixos";
+    };
+    shellInit = ''
+      # Disable fish greeting
+      set -g fish_greeting
+    '';
+  };
+
+  # Bash configuration (keep as fallback)
   programs.bash = {
     enable = true;
     shellAliases = {
@@ -290,16 +402,21 @@ in
       # Keybindings
       "$mod" = "SUPER";
       bind = [
-        "$mod, T, exec, kitty"
+        # Caelestia default apps
+        "$mod, T, exec, foot"                                          # Terminal
+        "$mod, E, exec, thunar"                                        # File manager
+        "$mod, R, exec, fuzzel"                                        # App launcher
+
+        # Additional apps
+        "$mod, A, exec, anytype"                                       # Note taking
+        "$mod, S, exec, GDK_BACKEND=x11 SDL_VIDEODRIVER=x11 steam"   # Gaming
+
+        # Window management
         "$mod, Q, killactive,"
         "$mod, M, exit,"
-        "$mod, E, exec, dolphin"
         "$mod, V, togglefloating,"
-        "$mod, R, exec, rofi -show drun"
         "$mod, P, pseudo,"
         "$mod, J, togglesplit,"
-        "$mod, A, exec, anytype"
-        "$mod, S, exec, GDK_BACKEND=x11 SDL_VIDEODRIVER=x11 steam"
 
         # Move focus with mod + arrow keys
         "$mod, left, movefocus, l"
@@ -331,8 +448,10 @@ in
         "$mod SHIFT, 9, movetoworkspace, 9"
         "$mod SHIFT, 0, movetoworkspace, 10"
 
-        # Screenshot
-        ", Print, exec, grim -g \"$(slurp)\" - | swappy -f -"
+        # Screenshots (Caelestia utilities)
+        ", Print, exec, grim -g \"$(slurp)\" - | swappy -f -"              # Screenshot region with editor
+        "$mod, Print, exec, grim - | swappy -f -"                          # Screenshot full screen
+        "$mod SHIFT, Print, exec, grim -g \"$(slurp)\" - | wl-copy"        # Screenshot region to clipboard
       ];
 
       # Mouse bindings

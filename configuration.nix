@@ -103,8 +103,9 @@
 
   # Environment variables for Vulkan
   environment.sessionVariables = {
-    # Help Vulkan loader find ICD files
+    # Help Vulkan loader find ICD files for both AMD and NVIDIA
     AMD_VULKAN_ICD = "RADV";  # Use RADV by default for AMD
+    # Explicitly select NVIDIA's 64-bit and 32-bit Vulkan ICDs for Wine/DXVK
     VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json:/run/opengl-driver-32/share/vulkan/icd.d/nvidia_icd.i686.json";
   };
 
