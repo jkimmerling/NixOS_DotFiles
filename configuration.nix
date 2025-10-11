@@ -2,22 +2,22 @@
 # Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running 'nixos-help').
 
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   # ===== IMPORTS =====
   imports = [
     ./hardware-configuration.nix
-    <home-manager/nixos>
+    inputs.hyprland.nixosModules.default
   ];
 
   # ===== NIX CONFIGURATION =====
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
-  
-  # Add rust-overlay for nightly Rust
-  nixpkgs.overlays = [
-    (import (builtins.fetchTarball "https://github.com/oxalica/rust-overlay/archive/master.tar.gz"))
+
+  # Allow insecure packages (needed for MuhRO Patcher)
+  nixpkgs.config.permittedInsecurePackages = [
+    "libsoup-2.74.3"
   ];
   
   # Automatic garbage collection
@@ -62,17 +62,13 @@
       vulkan-loader
       vulkan-validation-layers
       vulkan-extension-layer
-      
-      # AMD Vulkan driver
-      amdvlk
-      
-      # Mesa drivers (includes radv)
+
+      # Mesa drivers (includes RADV for AMD)
       mesa
     ];
     extraPackages32 = with pkgs.pkgsi686Linux; [
       vulkan-loader
       vulkan-validation-layers
-      amdvlk
       mesa
     ];
   };
@@ -113,29 +109,57 @@
   };
 
   # ===== DESKTOP ENVIRONMENT =====
-  # Enable the X11 windowing system
+  # Enable Hyprland
+  programs.hyprland = {
+    enable = true;
+    package = inputs.hyprland.packages.${pkgs.system}.hyprland;
+    xwayland.enable = true;
+  };
+
+  # Enable XDG Desktop Portal for Hyprland
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  };
+
+  # Enable the X11 windowing system for XWayland
   services.xserver.enable = true;
-  
+
   # Load NVIDIA driver for Xorg and Wayland
   services.xserver.videoDrivers = ["nvidia"];
-  
-  # Enable the GNOME Desktop Environment
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
-  
-  # Configure keymap in X11
+
+  # Configure keymap
   services.xserver.xkb = {
     layout = "us";
     variant = "";
   };
 
+  # Enable SDDM display manager for Hyprland
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;
+  };
+
   # Enable automatic login
   services.displayManager.autoLogin.enable = true;
   services.displayManager.autoLogin.user = "jasonk";
-  
-  # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
-  systemd.services."getty@tty1".enable = false;
-  systemd.services."autovt@tty1".enable = false;
+
+  # ===== POWER MANAGEMENT =====
+  # Disable all sleep and screen blanking
+  services.logind = {
+    lidSwitch = "ignore";
+    lidSwitchDocked = "ignore";
+    settings = {
+      Login = {
+        HandlePowerKey = "ignore";
+        IdleAction = "ignore";
+      };
+    };
+  };
+
+  powerManagement = {
+    enable = false;
+  };
 
   # ===== AUDIO =====
   services.pulseaudio.enable = false;
@@ -146,6 +170,13 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
+
+  # ===== BLUETOOTH =====
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
+  services.blueman.enable = true;
 
   # ===== PRINTING =====
   services.printing.enable = true;
@@ -165,9 +196,7 @@
   };
 
   # ===== HOME MANAGER =====
-  home-manager.useGlobalPkgs = true;
-  home-manager.useUserPackages = true;
-  home-manager.users.jasonk = import ./home.nix;
+  # Now configured in flake.nix
 
   # ===== SYSTEM PROGRAMS =====
   programs.firefox.enable = true;
@@ -177,6 +206,9 @@
     enable = true;
     remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
     dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    extraCompatPackages = with pkgs; [
+      proton-ge-bin
+    ];
   };
 
   programs.appimage = {
@@ -184,10 +216,8 @@
     binfmt = true;
   };
 
-  programs.kdeconnect = {
-    enable = true;
-    package = pkgs.gnomeExtensions.gsconnect;
-  };
+  # KDE Connect for Hyprland
+  programs.kdeconnect.enable = true;
 
   programs.nix-ld = {
     enable = true;
@@ -196,6 +226,7 @@
       webkitgtk_4_0
       gtk3
       glib
+      glib-networking
       gsettings-desktop-schemas
       libsecret
       libsoup_3
@@ -216,9 +247,16 @@
     (callPackage ./derivations/claude-code-latest.nix {})
     vulkan-tools  # Fix vulkaninfo command
 
-    # GNOME Shell Extensions
-    gnomeExtensions.pop-shell
-    gnomeExtensions.dock-from-dash
+    # Wayland/Hyprland utilities
+    waybar
+    rofi
+    dunst
+    kitty
+    wl-clipboard
+    grim
+    slurp
+    swappy
+    networkmanagerapplet
   ];
 
   # ===== SYSTEM STATE =====

@@ -21,10 +21,10 @@ in
       owner = "openai";
       repo = "codex";
       rev = "main"; # You can pin to a specific commit later
-      hash = "sha256-nomRW5hCpVG0KdGxrfGnmcVZPhZMrr04qDrAqp5AMPA=";
+      hash = "sha256-BspG0ZC3mLg1s6pxFjVFf9CPgcXM46jir0uAuvbiQs4=";
     };
 
-    cargoHash = "sha256-2qZAEY1NS76AkdPcnhKulqJ4tZtPzlVH+hgyWcuqFwk=";
+    cargoHash = "sha256-Qp5zezXjVdOp8OylLgUZRLc0HQlgII6nOZodnOrok6U=";
 
     nativeBuildInputs = [pkg-config];
 

@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 let
   # MuhRO Patcher script
@@ -6,6 +6,7 @@ let
     webkitgtk_4_0
     gtk3
     glib
+    glib-networking
     gsettings-desktop-schemas
     libsecret
     libsoup_3
@@ -19,12 +20,13 @@ let
     krb5
     samba
   ];
-  
+
   muhroPatcher = pkgs.writeShellScriptBin "muhro-patcher" ''
     export WEBKIT_DISABLE_DMABUF_RENDERER=1
     export GSK_RENDERER=gl
     export GDK_BACKEND=x11
     export LD_LIBRARY_PATH="${lib.makeLibraryPath muhroLibs}:$LD_LIBRARY_PATH"
+    export GIO_EXTRA_MODULES="${pkgs.glib-networking}/lib/gio/modules"
     cd /home/jasonk/Dot_Files/MuhRO
     exec ./Muh_Patcher "$@"
   '';
@@ -49,41 +51,57 @@ in
     ripgrep
     fzf
     nodejs_24
-    
+
+    # === Note taking ===
+    anytype
+
     # === Programming Languages ===
     # Elixir and Erlang
     beam.packages.erlang_28.elixir_1_18
     beam.packages.erlang_28.erlang
-    
+
     # === Gaming & Wine ===
     lutris
     wineWowPackages.stable
     winetricks
     muhroPatcher
-    
+
     # Wine/X11 clipboard utilities
     xdotool
     xsel
     xclip
     wl-clipboard
     copyq
-    
+
     # Vulkan tools
     vulkan-tools
     vulkan-loader
     vulkan-validation-layers
-    
+
     # === Communication ===
     discord-ptb
     signal-desktop
-    
+
     # === Graphics & Media ===
     gimp3
     tidal-hifi
-    
+
     # === System & Networking ===
     samba
     krb5
+
+    # === Caelestia Shell Dependencies ===
+    ddcutil
+    brightnessctl
+    libcava
+    networkmanager
+    lm_sensors
+    fish
+    aubio
+    pipewire
+    material-symbols
+    nerd-fonts.caskaydia-cove
+    libqalculate
   ];
 
   # ===== DEVELOPMENT CONFIGURATION =====
@@ -148,7 +166,8 @@ in
       ll = "ls -l";
       la = "ls -la";
       ".." = "cd ..";
-      update = "sudo nixos-rebuild switch";
+      rebuild = "sudo nixos-rebuild switch --flake /home/jasonk/Dot_Files#nixos";
+      update = "sudo nixos-rebuild switch --flake /home/jasonk/Dot_Files#nixos";
     };
   };
 
@@ -162,7 +181,7 @@ in
   };
 
   # ===== DESKTOP CONFIGURATION =====
-  
+
   # GTK theme configuration
   gtk = {
     enable = true;
@@ -176,20 +195,163 @@ in
     };
   };
 
-  # GNOME configuration via dconf
-  dconf = {
+  # ===== HYPRLAND CONFIGURATION =====
+  wayland.windowManager.hyprland = {
     enable = true;
+    package = inputs.hyprland.packages.${pkgs.system}.hyprland;
+    xwayland.enable = true;
+
     settings = {
-      "org/gnome/desktop/interface" = {
-        color-scheme = "prefer-dark";
+      # Monitor configuration
+      monitor = ",preferred,auto,1";
+
+      # Autostart
+      exec-once = [
+        "caelestia resizer -d"
+        "caelestia shell -d"
+      ];
+
+      # Environment variables
+      env = [
+        "XCURSOR_SIZE,24"
+        "QT_QPA_PLATFORM,wayland"
+        "GDK_BACKEND,wayland,x11"
+        "SDL_VIDEODRIVER,wayland"
+        "CLUTTER_BACKEND,wayland"
+        "DISPLAY,:0"
+      ];
+
+      # Input configuration
+      input = {
+        kb_layout = "us";
+        follow_mouse = 1;
+        touchpad = {
+          natural_scroll = false;
+        };
+        sensitivity = 0;
       };
-      "org/gnome/shell" = {
-        disable-user-extensions = false;
-        enabled-extensions = [
-          "dock-from-dash@fthx"
-          "pop-shell@system76.com"
+
+      # General settings
+      general = {
+        gaps_in = 5;
+        gaps_out = 10;
+        border_size = 2;
+        "col.active_border" = "rgba(33ccffee) rgba(00ff99ee) 45deg";
+        "col.inactive_border" = "rgba(595959aa)";
+        layout = "dwindle";
+      };
+
+      # Decoration
+      decoration = {
+        rounding = 10;
+        blur = {
+          enabled = true;
+          size = 3;
+          passes = 1;
+        };
+        shadow = {
+          enabled = true;
+          range = 4;
+          render_power = 3;
+          color = "rgba(1a1a1aee)";
+        };
+      };
+
+      # Animations
+      animations = {
+        enabled = true;
+        bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
+        animation = [
+          "windows, 1, 7, myBezier"
+          "windowsOut, 1, 7, default, popin 80%"
+          "border, 1, 10, default"
+          "borderangle, 1, 8, default"
+          "fade, 1, 7, default"
+          "workspaces, 1, 6, default"
         ];
       };
+
+      # Layout
+      dwindle = {
+        pseudotile = true;
+        preserve_split = true;
+      };
+
+      # Misc - Disable screen timeout/blanking
+      misc = {
+        disable_autoreload = false;
+        force_default_wallpaper = 0;
+        vfr = true;
+        vrr = 0;
+        mouse_move_enables_dpms = false;
+        key_press_enables_dpms = false;
+      };
+
+      # Keybindings
+      "$mod" = "SUPER";
+      bind = [
+        "$mod, T, exec, kitty"
+        "$mod, Q, killactive,"
+        "$mod, M, exit,"
+        "$mod, E, exec, dolphin"
+        "$mod, V, togglefloating,"
+        "$mod, R, exec, rofi -show drun"
+        "$mod, P, pseudo,"
+        "$mod, J, togglesplit,"
+        "$mod, A, exec, anytype"
+        "$mod, S, exec, GDK_BACKEND=x11 SDL_VIDEODRIVER=x11 steam"
+
+        # Move focus with mod + arrow keys
+        "$mod, left, movefocus, l"
+        "$mod, right, movefocus, r"
+        "$mod, up, movefocus, u"
+        "$mod, down, movefocus, d"
+
+        # Switch workspaces with mod + [0-9]
+        "$mod, 1, workspace, 1"
+        "$mod, 2, workspace, 2"
+        "$mod, 3, workspace, 3"
+        "$mod, 4, workspace, 4"
+        "$mod, 5, workspace, 5"
+        "$mod, 6, workspace, 6"
+        "$mod, 7, workspace, 7"
+        "$mod, 8, workspace, 8"
+        "$mod, 9, workspace, 9"
+        "$mod, 0, workspace, 10"
+
+        # Move active window to a workspace with mod + SHIFT + [0-9]
+        "$mod SHIFT, 1, movetoworkspace, 1"
+        "$mod SHIFT, 2, movetoworkspace, 2"
+        "$mod SHIFT, 3, movetoworkspace, 3"
+        "$mod SHIFT, 4, movetoworkspace, 4"
+        "$mod SHIFT, 5, movetoworkspace, 5"
+        "$mod SHIFT, 6, movetoworkspace, 6"
+        "$mod SHIFT, 7, movetoworkspace, 7"
+        "$mod SHIFT, 8, movetoworkspace, 8"
+        "$mod SHIFT, 9, movetoworkspace, 9"
+        "$mod SHIFT, 0, movetoworkspace, 10"
+
+        # Screenshot
+        ", Print, exec, grim -g \"$(slurp)\" - | swappy -f -"
+      ];
+
+      # Mouse bindings
+      bindm = [
+        "$mod, mouse:272, movewindow"
+        "$mod, mouse:273, resizewindow"
+      ];
     };
+  };
+
+  # ===== CAELESTIA SHELL CONFIGURATION =====
+  # Using home-manager module for full configuration support
+  programs.caelestia = {
+    enable = true;
+    # settings = {
+    #   # Customize your Caelestia Shell here
+    #   # Example:
+    #   # bar.status.showBattery = true;
+    #   # paths.wallpaperDir = "~/Pictures/Wallpapers";
+    # };
   };
 }
