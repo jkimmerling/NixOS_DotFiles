@@ -223,12 +223,16 @@ in
     };
   };
 
+  xdg.dataFile."icons/hicolor/512x512/apps/anarchy-online.png".source = ./icons/anarchy-online.png;
+  xdg.dataFile."icons/hicolor/512x512/apps/muhro.png".source = ./icons/muhro.png;
+
   xdg.desktopEntries.anarchy-online = {
     name = "Anarchy Online";
     genericName = "MMORPG";
     comment = "Launch Anarchy Online with NVIDIA PRIME and Wine";
     exec = "anarchy-online-launch";
     terminal = false;
+    icon = "anarchy-online";
     categories = [ "Game" ];
   };
 
@@ -238,6 +242,7 @@ in
     comment = "Launch MuhRO patcher with required GTK environment";
     exec = "muhro-patcher";
     terminal = false;
+    icon = "muhro";
     categories = [ "Game" ];
   };
 
@@ -249,6 +254,7 @@ in
       env WINEPREFIX=/home/jasonk/Games/anarchy-online wine "/home/jasonk/Games/anarchy-online/drive_c/Program Files/AO Item Assistant+/ItemAssistant.exe"
     '';
     terminal = false;
+    icon = "anarchy-online";
     categories = [ "Utility" "Game" ];
   };
 
