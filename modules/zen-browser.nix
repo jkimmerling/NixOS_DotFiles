@@ -23,8 +23,8 @@
     }
   );
 
-  # Create native messaging host manifest for CaelestiaFox extension
-  home.file.".mozilla/native-messaging-hosts/caelestiafox.json".text = builtins.toJSON {
+  # Create native messaging host manifest for CaelestiaFox extension in Zen Browser profile
+  home.file.".zen/yjo5uxfs.Default Profile/NativeMessagingHosts/caelestiafox.json".text = builtins.toJSON {
     name = "caelestiafox";
     description = "Native app for CaelestiaFox extension.";
     path = "${config.home.homeDirectory}/.local/lib/caelestia/caelestiafox";

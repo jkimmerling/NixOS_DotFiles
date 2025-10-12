@@ -115,11 +115,19 @@ in
 
     # === Caelestia Shell & Applications ===
     # Core Caelestia apps
-    xfce.thunar            # File manager
-    xfce.thunar-volman     # Thunar volume manager
-    xfce.tumbler           # Thumbnail generator for Thunar
-    foot                   # Terminal
-    fuzzel                 # Application launcher
+    xfce.thunar                  # File manager
+    xfce.thunar-volman           # Thunar volume manager
+    xfce.thunar-archive-plugin   # Thunar archive support
+    xfce.tumbler                 # Thumbnail generator for Thunar
+    foot                         # Terminal
+
+    # Archive tools
+    xarchiver      # GUI archive manager for Thunar
+    unzip          # ZIP extraction
+    zip            # ZIP creation
+    p7zip          # 7z support
+    unrar          # RAR extraction
+    gnutar         # TAR support
 
     # Caelestia utilities
     fastfetch        # System info
@@ -341,8 +349,6 @@ in
       # Autostart
       exec-once = [
         "gnome-keyring-daemon --start --components=secrets,ssh"
-        "caelestia resizer -d"
-        "caelestia shell -d"
       ];
 
       # Environment variables
@@ -424,11 +430,16 @@ in
 
       # Keybindings
       "$mod" = "SUPER";
+
       bind = [
+        # Caelestia launcher
+        "$mod, D, global, caelestia:launcher"
+
+        # Window management and apps
         # Caelestia default apps
         "$mod, T, exec, foot"                                          # Terminal
         "$mod, E, exec, thunar"                                        # File manager
-        "$mod, R, exec, fuzzel"                                        # App launcher
+        # Launcher: Super key opens Caelestia launcher (built-in)
 
         # Additional apps
         "$mod, A, exec, anytype"                                       # Note taking

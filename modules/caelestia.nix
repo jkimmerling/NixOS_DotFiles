@@ -5,6 +5,10 @@
   # Using home-manager module for full configuration support
   programs.caelestia = {
     enable = true;
+
+    # Enable systemd service to manage Caelestia shell
+    systemd.enable = true;
+
     settings = {
       general = {
         idle = {
