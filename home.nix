@@ -44,6 +44,7 @@ in
   # ===== IMPORTS =====
   imports = [
     ./modules/caelestia.nix
+    ./modules/zen-browser.nix
   ];
 
   # ===== HOME MANAGER CONFIGURATION =====
@@ -105,11 +106,20 @@ in
     samba
     krb5
 
+    # === File Manager Support (GVFS) ===
+    gvfs              # Virtual filesystem support for Thunar
+
+    # === Keyring ===
+    gnome-keyring
+    seahorse
+
     # === Caelestia Shell & Applications ===
     # Core Caelestia apps
-    xfce.thunar      # File manager
-    foot             # Terminal
-    fuzzel           # Application launcher
+    xfce.thunar            # File manager
+    xfce.thunar-volman     # Thunar volume manager
+    xfce.tumbler           # Thumbnail generator for Thunar
+    foot                   # Terminal
+    fuzzel                 # Application launcher
 
     # Caelestia utilities
     fastfetch        # System info
@@ -309,12 +319,12 @@ in
   gtk = {
     enable = true;
     theme = {
-      name = "Catppuccin-Macchiato-Standard-Blue-Dark";
-      package = pkgs.catppuccin-gtk.override {
-        accents = [ "green" ];
-        size = "standard";
-        variant = "macchiato";
-      };
+      name = "adw-gtk3-dark";
+      package = pkgs.adw-gtk3;
+    };
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
     };
   };
 
@@ -330,6 +340,7 @@ in
 
       # Autostart
       exec-once = [
+        "gnome-keyring-daemon --start --components=secrets,ssh"
         "caelestia resizer -d"
         "caelestia shell -d"
       ];
@@ -342,6 +353,7 @@ in
         "SDL_VIDEODRIVER,wayland"
         "CLUTTER_BACKEND,wayland"
         "DISPLAY,:0"
+        "SSH_AUTH_SOCK,$XDG_RUNTIME_DIR/keyring/ssh"
       ];
 
       # Input configuration

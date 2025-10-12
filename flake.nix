@@ -20,9 +20,14 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, hyprland, caelestia-shell, rust-overlay, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, hyprland, caelestia-shell, rust-overlay, zen-browser, ... }@inputs: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
@@ -37,6 +42,7 @@
           home-manager.useUserPackages = true;
           home-manager.users.jasonk = import ./home.nix;
           home-manager.extraSpecialArgs = { inherit inputs; };
+          home-manager.backupFileExtension = "backup";
           home-manager.sharedModules = [
             caelestia-shell.homeManagerModules.default
           ];

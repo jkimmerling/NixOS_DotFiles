@@ -9,6 +9,7 @@
   imports = [
     ./hardware-configuration.nix
     ./modules/power-management.nix
+    ./modules/bluetooth.nix
     inputs.hyprland.nixosModules.default
   ];
 
@@ -156,15 +157,14 @@
     pulse.enable = true;
   };
 
-  # ===== BLUETOOTH =====
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = true;
-  };
-  services.blueman.enable = true;
-
   # ===== PRINTING =====
   services.printing.enable = true;
+
+  # ===== KEYRING =====
+  services.gnome.gnome-keyring.enable = true;
+
+  # Enable PAM to automatically unlock keyring on login
+  security.pam.services.sddm.enableGnomeKeyring = true;
 
   # ===== USERS & SECURITY =====
   # Configure sudo timeout (in minutes)
@@ -178,31 +178,7 @@
       users = [ "jasonk" ];
       commands = [
         {
-          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild switch";
-          options = [ "NOPASSWD" ];
-        }
-        {
-          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild boot";
-          options = [ "NOPASSWD" ];
-        }
-        {
-          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild test";
-          options = [ "NOPASSWD" ];
-        }
-        {
-          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild build";
-          options = [ "NOPASSWD" ];
-        }
-        {
-          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild build-vm";
-          options = [ "NOPASSWD" ];
-        }
-        {
-          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild dry-build";
-          options = [ "NOPASSWD" ];
-        }
-        {
-          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild dry-activate";
+          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild";
           options = [ "NOPASSWD" ];
         }
       ];

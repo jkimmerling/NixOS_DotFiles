@@ -10,13 +10,11 @@
   services.power-profiles-daemon.enable = true;
 
   # Logind settings - prevent automatic sleep/suspend
-  services.logind = {
-    lidSwitch = "ignore";
-    lidSwitchDocked = "ignore";
-    settings.Login = {
-      HandlePowerKey = "ignore";
-      IdleAction = "ignore";
-    };
+  services.logind.settings.Login = {
+    HandleLidSwitch = "ignore";
+    HandleLidSwitchDocked = "ignore";
+    HandlePowerKey = "ignore";
+    IdleAction = "ignore";
   };
 
   # Disable NixOS power management
