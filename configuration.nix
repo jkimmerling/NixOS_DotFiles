@@ -8,6 +8,7 @@
   # ===== IMPORTS =====
   imports = [
     ./hardware-configuration.nix
+    ./modules/power-management.nix
     inputs.hyprland.nixosModules.default
   ];
 
@@ -145,23 +146,6 @@
   services.displayManager.autoLogin.enable = true;
   services.displayManager.autoLogin.user = "jasonk";
 
-  # ===== POWER MANAGEMENT =====
-  # Disable all sleep and screen blanking
-  services.logind = {
-    lidSwitch = "ignore";
-    lidSwitchDocked = "ignore";
-    settings = {
-      Login = {
-        HandlePowerKey = "ignore";
-        IdleAction = "ignore";
-      };
-    };
-  };
-
-  powerManagement = {
-    enable = false;
-  };
-
   # ===== AUDIO =====
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
@@ -187,6 +171,43 @@
   security.sudo.extraConfig = ''
     Defaults timestamp_timeout=30
   '';
+
+  # Allow passwordless sudo for NixOS rebuild commands
+  security.sudo.extraRules = [
+    {
+      users = [ "jasonk" ];
+      commands = [
+        {
+          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild switch";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild boot";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild test";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild build";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild build-vm";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild dry-build";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild dry-activate";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
 
   # Define user account
   users.users.jasonk = {

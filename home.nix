@@ -41,6 +41,11 @@ let
   '';
 in
 {
+  # ===== IMPORTS =====
+  imports = [
+    ./modules/caelestia.nix
+  ];
+
   # ===== HOME MANAGER CONFIGURATION =====
   home.username = "jasonk";
   home.homeDirectory = "/home/jasonk";
@@ -466,17 +471,5 @@ in
         "$mod, mouse:273, resizewindow"
       ];
     };
-  };
-
-  # ===== CAELESTIA SHELL CONFIGURATION =====
-  # Using home-manager module for full configuration support
-  programs.caelestia = {
-    enable = true;
-    # settings = {
-    #   # Customize your Caelestia Shell here
-    #   # Example:
-    #   # bar.status.showBattery = true;
-    #   # paths.wallpaperDir = "~/Pictures/Wallpapers";
-    # };
   };
 }
