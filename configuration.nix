@@ -2,15 +2,23 @@
 # Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running 'nixos-help').
 
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, ... }:
 
+let
+  nvidia-offload = pkgs.writeShellScriptBin "nvidia-offload" ''
+    export __NV_PRIME_RENDER_OFFLOAD=1
+    export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
+    export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    export __VK_LAYER_NV_optimus=NVIDIA_only
+    exec -a "$0" "$@"
+  '';
+in
 {
   # ===== IMPORTS =====
   imports = [
     ./hardware-configuration.nix
     ./modules/power-management.nix
     ./modules/bluetooth.nix
-    inputs.hyprland.nixosModules.default
   ];
 
   # ===== NIX CONFIGURATION =====
@@ -95,9 +103,8 @@
     
     # PRIME configuration for hybrid graphics
     prime = {
-      sync.enable = true;  # Use NVIDIA GPU for everything
-      
-      # Bus IDs for your specific hardware
+      offload.enable = true;
+      offload.enableOffloadCmd = true;
       amdgpuBusId = "PCI:8:0:0";
       nvidiaBusId = "PCI:1:0:0";
     };
@@ -109,21 +116,11 @@
     AMD_VULKAN_ICD = "RADV";  # Use RADV by default for AMD
     # Explicitly select NVIDIA's 64-bit and 32-bit Vulkan ICDs for Wine/DXVK
     VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json:/run/opengl-driver-32/share/vulkan/icd.d/nvidia_icd.i686.json";
+    NIXOS_OZONE_WL = "1";
   };
 
   # ===== DESKTOP ENVIRONMENT =====
-  # Enable Hyprland
-  programs.hyprland = {
-    enable = true;
-    package = inputs.hyprland.packages.${pkgs.system}.hyprland;
-    xwayland.enable = true;
-  };
-
-  # Enable XDG Desktop Portal for Hyprland
-  xdg.portal = {
-    enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-  };
+  programs.niri.enable = true;
 
   # Enable the X11 windowing system for XWayland
   services.xserver.enable = true;
@@ -137,7 +134,7 @@
     variant = "";
   };
 
-  # Enable SDDM display manager for Hyprland
+  # Enable SDDM display manager for Niri
   services.displayManager.sddm = {
     enable = true;
     wayland.enable = true;
@@ -146,6 +143,7 @@
   # Enable automatic login
   services.displayManager.autoLogin.enable = true;
   services.displayManager.autoLogin.user = "jasonk";
+  services.displayManager.defaultSession = "niri";
 
   # ===== AUDIO =====
   services.pulseaudio.enable = false;
@@ -155,6 +153,22 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    extraConfig.pipewire."92-low-latency" = {
+      context.properties = {
+        default.clock.rate = 48000;
+        default.clock.quantum = 512;
+        default.clock.min-quantum = 512;
+        default.clock.max-quantum = 512;
+      };
+    };
+    wireplumber.extraConfig."10-bluez" = {
+      "monitor.bluez.properties" = {
+        "bluez5.enable-sbc-xq" = true;
+        "bluez5.enable-msbc" = true;
+        "bluez5.enable-hw-volume" = true;
+        "bluez5.roles" = [ "hsp_hs" "hsp_ag" "hfp_hf" "hfp_ag" ];
+      };
+    };
   };
 
   # ===== PRINTING =====
@@ -164,7 +178,8 @@
   services.gnome.gnome-keyring.enable = true;
 
   # Enable PAM to automatically unlock keyring on login
-  security.pam.services.sddm.enableGnomeKeyring = true;
+  # Use 'login' instead of 'sddm' since we don't use a display manager
+  security.pam.services.login.enableGnomeKeyring = true;
 
   # ===== USERS & SECURITY =====
   # Configure sudo timeout (in minutes)
@@ -178,7 +193,7 @@
       users = [ "jasonk" ];
       commands = [
         {
-          command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild";
+          command = "ALL";
           options = [ "NOPASSWD" ];
         }
       ];
@@ -207,6 +222,16 @@
     extraCompatPackages = with pkgs; [
       proton-ge-bin
     ];
+
+    # Force NVIDIA PRIME offload for all Steam games
+    package = pkgs.steam.override {
+      extraEnv = {
+        __NV_PRIME_RENDER_OFFLOAD = "1";
+        __NV_PRIME_RENDER_OFFLOAD_PROVIDER = "NVIDIA-G0";
+        __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+        __VK_LAYER_NV_optimus = "NVIDIA_only";
+      };
+    };
   };
 
   programs.appimage = {
@@ -214,7 +239,6 @@
     binfmt = true;
   };
 
-  # KDE Connect for Hyprland
   programs.kdeconnect.enable = true;
 
   programs.nix-ld = {
@@ -239,23 +263,27 @@
   };
 
   # ===== SYSTEM PACKAGES =====
-  environment.systemPackages = with pkgs; [
-    nodejs_24
-    (callPackage ./derivations/codex.nix {})  # Build Codex from source
-    (callPackage ./derivations/claude-code-latest.nix {})
-    vulkan-tools  # Fix vulkaninfo command
+  environment.systemPackages =
+    (with pkgs; [
+      nodejs_24
+      (callPackage ./derivations/codex.nix {})  # Build Codex from source
+      (callPackage ./derivations/claude-code-latest.nix {})
+      vulkan-tools  # Fix vulkaninfo command
+      mesa-demos
 
-    # Wayland/Hyprland utilities
-    waybar
-    rofi
-    dunst
-    kitty
-    wl-clipboard
-    grim
-    slurp
-    swappy
-    networkmanagerapplet
-  ];
+      # Wayland utilities
+      dunst
+      wl-clipboard
+      grim
+      slurp
+      swappy
+      networkmanagerapplet
+
+      mesa-demos
+    ])
+    ++ [
+      nvidia-offload
+    ];
 
   # ===== SYSTEM STATE =====
   # This value determines the NixOS release from which the default

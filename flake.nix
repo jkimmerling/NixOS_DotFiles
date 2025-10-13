@@ -1,5 +1,5 @@
 {
-  description = "NixOS configuration with Hyprland and Caelestia Shell";
+  description = "NixOS configuration with Niri and DankMaterialShell";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -9,15 +9,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland.url = "github:hyprwm/Hyprland";
-
-    caelestia-shell = {
-      url = "github:caelestia-dots/shell";
+    niri = {
+      url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    caelestia-cli = {
-      url = "github:caelestia-dots/cli";
+    dankMaterialShell = {
+      url = "github:AvengeMedia/DankMaterialShell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -32,7 +30,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, hyprland, caelestia-shell, caelestia-cli, rust-overlay, zen-browser, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, niri, dankMaterialShell, rust-overlay, zen-browser, ... }@inputs: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
@@ -49,9 +47,11 @@
           home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.backupFileExtension = "backup";
           home-manager.sharedModules = [
-            caelestia-shell.homeManagerModules.default
+            dankMaterialShell.homeModules.dankMaterialShell.default
+            dankMaterialShell.homeModules.dankMaterialShell.niri
           ];
         }
+        niri.nixosModules.niri
       ];
     };
   };

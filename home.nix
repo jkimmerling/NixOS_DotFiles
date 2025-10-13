@@ -1,4 +1,4 @@
-{ config, pkgs, lib, inputs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   # MuhRO Patcher script
@@ -39,13 +39,59 @@ let
     export WINEPREFIX="/home/jasonk/Games/anarchy-online"
     exec wine Anarchy.exe "$@"
   '';
+
+  updateFuzzelTheme = pkgs.writeShellScriptBin "update-fuzzel-theme" ''
+    # Auto-generate fuzzel config from DMS theme colors
+    GTK_CSS="$HOME/.config/gtk-3.0/gtk.css"
+    FUZZEL_INI="$HOME/.config/fuzzel/fuzzel.ini"
+
+    # Extract background (dark)
+    BG=$(${pkgs.gawk}/bin/awk '/^\.background \{/{getline; if(/background-color/) {match($0, /#[0-9a-f]{6}/); print substr($0, RSTART+1, 6)}}' "$GTK_CSS")
+    # Extract foreground (light text)
+    FG=$(${pkgs.gawk}/bin/awk '/^\.background \{/{getline; getline; if(/color/) {match($0, /#[0-9a-f]{6}/); print substr($0, RSTART+1, 6)}}' "$GTK_CSS")
+    # Extract accent
+    ACCENT=$(${pkgs.gawk}/bin/awk '/background-color.*#9fd49b/{match($0, /#[0-9a-f]{6}/); print substr($0, RSTART+1, 6); exit}' "$GTK_CSS")
+
+    # Defaults
+    BG=''${BG:-10140f}
+    FG=''${FG:-e0e4db}
+    ACCENT=''${ACCENT:-9fd49b}
+
+    cat > "$FUZZEL_INI" << FUZZEL_EOF
+font=JetBrains Mono NF:size=17
+terminal=foot -e
+prompt="> "
+layer=overlay
+lines=15
+width=60
+dpi-aware=no
+inner-pad=10
+horizontal-pad=40
+vertical-pad=15
+match-counter=yes
+
+[colors]
+background=''${BG}dd
+text=''${FG}ff
+prompt=''${ACCENT}ff
+placeholder=918f9aff
+input=''${FG}ff
+match=''${ACCENT}ff
+selection=''${ACCENT}87
+selection-text=10140fff
+selection-match=10140fff
+counter=918f9aff
+border=''${ACCENT}77
+
+[border]
+radius=10
+width=2
+FUZZEL_EOF
+  '';
 in
 {
   # ===== IMPORTS =====
-  imports = [
-    ./modules/caelestia.nix
-    ./modules/zen-browser.nix
-  ];
+  imports = [];
 
   # ===== HOME MANAGER CONFIGURATION =====
   home.username = "jasonk";
@@ -66,12 +112,14 @@ in
     ripgrep
     fzf
     nodejs_24
+    eza
+    fuzzel
+    updateFuzzelTheme
 
     # === Note taking ===
     anytype
 
     # === Programming Languages ===
-    # Elixir and Erlang
     beam.packages.erlang_28.elixir_1_18
     beam.packages.erlang_28.erlang
 
@@ -89,6 +137,9 @@ in
     wl-clipboard
     copyq
 
+    # XWayland support
+    xwayland-satellite
+
     # Vulkan tools
     vulkan-tools
     vulkan-loader
@@ -105,55 +156,14 @@ in
     # === System & Networking ===
     samba
     krb5
-
-    # === File Manager Support (GVFS) ===
-    gvfs              # Virtual filesystem support for Thunar
-
-    # === Keyring ===
+    gvfs
     gnome-keyring
     seahorse
 
-    # === Caelestia Shell & Applications ===
-    # Caelestia CLI tool for theming and configuration
-    inputs.caelestia-cli.packages.${pkgs.system}.default
-
-    # Core Caelestia apps
-    xfce.thunar                  # File manager
-    xfce.thunar-volman           # Thunar volume manager
-    xfce.thunar-archive-plugin   # Thunar archive support
-    xfce.tumbler                 # Thumbnail generator for Thunar
-    foot                         # Terminal
-
-    # Archive tools
-    xarchiver      # GUI archive manager for Thunar
-    unzip          # ZIP extraction
-    zip            # ZIP creation
-    p7zip          # 7z support
-    unrar          # RAR extraction
-    gnutar         # TAR support
-
-    # Caelestia utilities
-    fastfetch        # System info
-    btop             # System monitor
-    cliphist         # Clipboard manager
-    eza              # Modern ls replacement
-    hyprpicker       # Color picker
-    grim             # Screenshot tool
-    slurp            # Region selector
-    swappy           # Screenshot editor
-
-    # Caelestia shell dependencies
-    ddcutil
-    brightnessctl
-    libcava
-    networkmanager
-    lm_sensors
-    fish
-    aubio
-    pipewire
-    material-symbols
-    nerd-fonts.caskaydia-cove
-    libqalculate
+    # === Desktop Integration ===
+    nautilus
+    ghostty
+    pywalfox-native
   ];
 
   # ===== DEVELOPMENT CONFIGURATION =====
@@ -209,46 +219,6 @@ in
     nix-direnv.enable = true;
   };
 
-  # ===== CAELESTIA APPLICATIONS =====
-
-  # Starship prompt (Caelestia default)
-  programs.starship = {
-    enable = true;
-    enableFishIntegration = true;
-    enableBashIntegration = true;
-  };
-
-  # Fastfetch system info
-  programs.fastfetch = {
-    enable = true;
-  };
-
-  # BTop system monitor
-  programs.btop = {
-    enable = true;
-    settings = {
-      color_theme = "Default";
-      theme_background = false;
-    };
-  };
-
-  # Foot terminal (Caelestia default)
-  programs.foot = {
-    enable = true;
-    settings = {
-      main = {
-        font = "CaskaydiaCove Nerd Font:size=11";
-        dpi-aware = "yes";
-      };
-      colors = {
-        alpha = 0.95;
-      };
-      scrollback = {
-        lines = "20000";
-      };
-    };
-  };
-
   xdg.dataFile."icons/hicolor/512x512/apps/anarchy-online.png".source = ./icons/anarchy-online.png;
   xdg.dataFile."icons/hicolor/512x512/apps/muhro.png".source = ./icons/muhro.png;
 
@@ -286,7 +256,7 @@ in
 
   # ===== SHELL CONFIGURATION =====
 
-  # Fish shell configuration (Caelestia default)
+  # Fish shell configuration
   programs.fish = {
     enable = true;
     shellAliases = {
@@ -319,184 +289,186 @@ in
   
   home.sessionVariables = {
     # Wine/Lutris configuration for better game compatibility
-    WINEARCH = "win32";  # Force 32-bit Wine prefixes
-    GDK_BACKEND = "x11";  # Force X11 backend for Wine games (fixes clipboard on Wayland)
-    QT_QPA_PLATFORM = "xcb";
+    WINEARCH = "win32";  # Force 32-bit Wine prefixes for legacy games
   };
 
   # ===== DESKTOP CONFIGURATION =====
 
-  # GTK theme configuration
-  gtk = {
-    enable = true;
-    theme = {
-      name = "adw-gtk3-dark";
-      package = pkgs.adw-gtk3;
+  programs.niri.settings = {
+    prefer-no-csd = true;
+
+    spawn-at-startup = [
+      { command = [ "${updateFuzzelTheme}/bin/update-fuzzel-theme" ]; }
+    ];
+
+    xwayland-satellite = {
+      enable = true;
+      path = "${pkgs.xwayland-satellite}/bin/xwayland-satellite";
     };
-    iconTheme = {
-      name = "Papirus-Dark";
-      package = pkgs.papirus-icon-theme;
+
+    outputs."eDP-1" = {
+      mode = {
+        width = 2560;
+        height = 1600;
+        refresh = 240.003;
+      };
+      scale = 1.0;
+    };
+
+    layout = {
+      preset-column-widths = [
+        { proportion = 0.5; }
+        { proportion = 0.66667; }
+        { proportion = 1.0; }
+      ];
+    };
+
+    environment = {
+      "QT_QPA_PLATFORMTHEME" = "qt6ct";
+      "QT_QPA_PLATFORMTHEME_QT6" = "qt6ct";
+    };
+    binds = with config.lib.niri.actions; {
+      # Help overlay and essential launchers
+      "Mod+Shift+Slash".action = show-hotkey-overlay;
+      "Mod+T".action = spawn "ghostty";
+      "Mod+D".action = spawn "fuzzel";
+      "Mod+Q".action = close-window;
+
+      # Horizontal column navigation (focus)
+      "Mod+Left".action = focus-column-left;
+      "Mod+Right".action = focus-column-right;
+
+      # Vertical window navigation (focus)
+      "Mod+Down".action = focus-window-down;
+      "Mod+Up".action = focus-window-up;
+
+      # Move columns horizontally
+      "Mod+Shift+Left".action = move-column-left;
+      "Mod+Shift+Right".action = move-column-right;
+
+      # Workspace navigation (community defaults)
+      "Mod+I".action = focus-workspace-down;
+      "Mod+Page_Down".action = focus-workspace-down;
+      "Mod+U".action = focus-workspace-up;
+      "Mod+Page_Up".action = focus-workspace-up;
+      "Mod+Tab".action = focus-workspace-previous;
+
+      # Move columns between workspaces
+      "Mod+Shift+I".action = move-column-to-workspace-down;
+      "Mod+Shift+Down".action = move-column-to-workspace-down;
+      "Mod+Shift+U".action = move-column-to-workspace-up;
+      "Mod+Shift+Up".action = move-column-to-workspace-up;
+
+      # Overview toggle
+      "Mod+O".action = toggle-overview;
+
+      # Window resize controls
+      "Mod+R".action = switch-preset-column-width;
+      "Mod+Shift+R".action = switch-preset-column-width-back;
+      "Mod+F".action = fullscreen-window;
+      "Mod+Equal".action = maximize-column;
     };
   };
 
-  # ===== HYPRLAND CONFIGURATION =====
-  wayland.windowManager.hyprland = {
+  programs.dankMaterialShell = {
     enable = true;
-    package = inputs.hyprland.packages.${pkgs.system}.hyprland;
-    xwayland.enable = true;
+    enableSystemd = false;
+    enableDynamicTheming = true;
+    enableSystemMonitoring = true;
+    enableClipboard = true;
+    enableBrightnessControl = true;
+    enableNightMode = true;
+    enableAudioWavelength = true;
+    niri = {
+      enableKeybinds = true;
+      enableSpawn = true;
+    };
+  };
 
-    settings = {
-      # Monitor configuration
-      monitor = ",preferred,auto,1";
+  # GTK theme configuration
+  # Note: Colloid must be manually installed to ~/.themes/ for DMS integration
+  # Run: git clone https://github.com/vinceliuice/Colloid-gtk-theme && cd Colloid-gtk-theme && ./install.sh -s standard -l --tweaks normal
+  gtk = {
+    enable = true;
+    theme = {
+      name = "Colloid";
+    };
+    iconTheme = {
+      name = "Colloid-Dark";
+      package = pkgs.colloid-icon-theme;
+    };
+  };
 
-      # Autostart
-      exec-once = [
-        "gnome-keyring-daemon --start --components=secrets,ssh"
-        "caelestia scheme set -n shadotheme"  # Generate initial color scheme for Zen browser
-      ];
+  programs.starship = {
+    enable = true;
+    enableFishIntegration = true;
+    enableBashIntegration = true;
+  };
 
-      # Environment variables
-      env = [
-        "XCURSOR_SIZE,24"
-        "QT_QPA_PLATFORM,wayland"
-        "GDK_BACKEND,wayland,x11"
-        "SDL_VIDEODRIVER,wayland"
-        "CLUTTER_BACKEND,wayland"
-        "DISPLAY,:0"
-        "SSH_AUTH_SOCK,$XDG_RUNTIME_DIR/keyring/ssh"
-      ];
+  # Ghostty terminal theming hook for DMS auto-generated palette
+  xdg.configFile."ghostty/config".text = ''
+    config-file = config-dankcolors
+    app-notifications = no-clipboard-copy,no-config-reload
+  '';
 
-      # Input configuration
-      input = {
-        kb_layout = "us";
-        follow_mouse = 1;
-        touchpad = {
-          natural_scroll = false;
-        };
-        sensitivity = 0;
-      };
+  # Matugen -> Pywalfox palette symlink to keep Firefox colors up to date
+  home.activation.pywalfoxPaletteLink = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    mkdir -p "${config.home.homeDirectory}/.cache/wal"
+    ln -sf "${config.home.homeDirectory}/.cache/wal/dank-pywalfox.json" \
+      "${config.home.homeDirectory}/.cache/wal/colors.json"
+  '';
 
-      # General settings
-      general = {
-        gaps_in = 5;
-        gaps_out = 10;
-        border_size = 2;
-        "col.active_border" = "rgba(33ccffee) rgba(00ff99ee) 45deg";
-        "col.inactive_border" = "rgba(595959aa)";
-        layout = "dwindle";
-      };
+  # Install Colloid GTK theme for DMS integration
+  # Must be in ~/.themes/ (not /nix/store) so DMS can modify it
+  home.activation.installColloidTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    THEME_DIR="${config.home.homeDirectory}/.themes"
+    COLLOID_INSTALLED="$THEME_DIR/Colloid/gtk-3.0/gtk.css"
 
-      # Decoration
-      decoration = {
-        rounding = 10;
-        blur = {
-          enabled = true;
-          size = 3;
-          passes = 1;
-        };
-        shadow = {
-          enabled = true;
-          range = 4;
-          render_power = 3;
-          color = "rgba(1a1a1aee)";
-        };
-      };
+    # Only install if not already present
+    if [ ! -f "$COLLOID_INSTALLED" ]; then
+      echo "Installing Colloid theme for DMS integration..."
 
-      # Animations
-      animations = {
-        enabled = true;
-        bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
-        animation = [
-          "windows, 1, 7, myBezier"
-          "windowsOut, 1, 7, default, popin 80%"
-          "border, 1, 10, default"
-          "borderangle, 1, 8, default"
-          "fade, 1, 7, default"
-          "workspaces, 1, 6, default"
-        ];
-      };
+      # Create temp directory
+      TEMP_DIR=$(${pkgs.coreutils}/bin/mktemp -d)
+      cd "$TEMP_DIR"
 
-      # Layout
-      dwindle = {
-        pseudotile = true;
-        preserve_split = true;
-      };
+      # Clone Colloid theme
+      ${pkgs.git}/bin/git clone --depth=1 https://github.com/vinceliuice/Colloid-gtk-theme.git
+      cd Colloid-gtk-theme
 
-      # Misc - Disable screen timeout/blanking
-      misc = {
-        disable_autoreload = false;
-        force_default_wallpaper = 0;
-        vfr = true;
-        vrr = 0;
-        mouse_move_enables_dpms = false;
-        key_press_enables_dpms = false;
-      };
+      # Install with DMS-recommended flags
+      ${pkgs.nix}/bin/nix-shell -p sassc --run "./install.sh -s standard -l --tweaks normal" || true
 
-      # Keybindings
-      "$mod" = "SUPER";
+      # Cleanup
+      cd
+      ${pkgs.coreutils}/bin/rm -rf "$TEMP_DIR"
 
-      bind = [
-        # Caelestia launcher
-        "$mod, D, global, caelestia:launcher"
+      echo "✓ Colloid theme installed to $THEME_DIR"
+    fi
+  '';
 
-        # Window management and apps
-        # Caelestia default apps
-        "$mod, T, exec, foot"                                          # Terminal
-        "$mod, E, exec, thunar"                                        # File manager
-        # Launcher: Super key opens Caelestia launcher (built-in)
+  # Ensure the Pywalfox native host is installed for Firefox integration
+  # Note: Pywalfox doesn't run as a daemon - Firefox starts it via native messaging
+  home.activation.pywalfoxInstall = lib.hm.dag.entryAfter [ "pywalfoxPaletteLink" ] ''
+    ${pkgs.pywalfox-native}/bin/pywalfox install >/dev/null 2>&1 || true
+  '';
 
-        # Additional apps
-        "$mod, A, exec, anytype"                                       # Note taking
-        "$mod, S, exec, GDK_BACKEND=x11 SDL_VIDEODRIVER=x11 steam"   # Gaming
-
-        # Window management
-        "$mod, Q, killactive,"
-        "$mod, M, exit,"
-        "$mod, V, togglefloating,"
-        "$mod, P, pseudo,"
-        "$mod, J, togglesplit,"
-
-        # Move focus with mod + arrow keys
-        "$mod, left, movefocus, l"
-        "$mod, right, movefocus, r"
-        "$mod, up, movefocus, u"
-        "$mod, down, movefocus, d"
-
-        # Switch workspaces with mod + [0-9]
-        "$mod, 1, workspace, 1"
-        "$mod, 2, workspace, 2"
-        "$mod, 3, workspace, 3"
-        "$mod, 4, workspace, 4"
-        "$mod, 5, workspace, 5"
-        "$mod, 6, workspace, 6"
-        "$mod, 7, workspace, 7"
-        "$mod, 8, workspace, 8"
-        "$mod, 9, workspace, 9"
-        "$mod, 0, workspace, 10"
-
-        # Move active window to a workspace with mod + SHIFT + [0-9]
-        "$mod SHIFT, 1, movetoworkspace, 1"
-        "$mod SHIFT, 2, movetoworkspace, 2"
-        "$mod SHIFT, 3, movetoworkspace, 3"
-        "$mod SHIFT, 4, movetoworkspace, 4"
-        "$mod SHIFT, 5, movetoworkspace, 5"
-        "$mod SHIFT, 6, movetoworkspace, 6"
-        "$mod SHIFT, 7, movetoworkspace, 7"
-        "$mod SHIFT, 8, movetoworkspace, 8"
-        "$mod SHIFT, 9, movetoworkspace, 9"
-        "$mod SHIFT, 0, movetoworkspace, 10"
-
-        # Screenshots (Caelestia utilities)
-        ", Print, exec, grim -g \"$(slurp)\" - | swappy -f -"              # Screenshot region with editor
-        "$mod, Print, exec, grim - | swappy -f -"                          # Screenshot full screen
-        "$mod SHIFT, Print, exec, grim -g \"$(slurp)\" - | wl-copy"        # Screenshot region to clipboard
-      ];
-
-      # Mouse bindings
-      bindm = [
-        "$mod, mouse:272, movewindow"
-        "$mod, mouse:273, resizewindow"
-      ];
+  # File watcher to regenerate fuzzel theme when GTK CSS changes
+  systemd.user.services.fuzzel-theme-watcher = {
+    Unit = {
+      Description = "Watch GTK CSS and regenerate fuzzel theme";
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.writeShellScript "watch-gtk-css" ''
+        while ${pkgs.inotify-tools}/bin/inotifywait -e modify,create,close_write $HOME/.config/gtk-3.0/gtk.css 2>/dev/null; do
+          ${updateFuzzelTheme}/bin/update-fuzzel-theme
+        done
+      ''}";
+      Restart = "always";
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
     };
   };
 }
