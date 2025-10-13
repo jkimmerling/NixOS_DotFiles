@@ -114,6 +114,9 @@ in
     seahorse
 
     # === Caelestia Shell & Applications ===
+    # Caelestia CLI tool for theming and configuration
+    inputs.caelestia-cli.packages.${pkgs.system}.default
+
     # Core Caelestia apps
     xfce.thunar                  # File manager
     xfce.thunar-volman           # Thunar volume manager
@@ -349,6 +352,7 @@ in
       # Autostart
       exec-once = [
         "gnome-keyring-daemon --start --components=secrets,ssh"
+        "caelestia scheme set -n shadotheme"  # Generate initial color scheme for Zen browser
       ];
 
       # Environment variables

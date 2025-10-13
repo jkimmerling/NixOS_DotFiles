@@ -16,6 +16,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    caelestia-cli = {
+      url = "github:caelestia-dots/cli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -27,7 +32,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, hyprland, caelestia-shell, rust-overlay, zen-browser, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, hyprland, caelestia-shell, caelestia-cli, rust-overlay, zen-browser, ... }@inputs: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
