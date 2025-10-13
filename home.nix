@@ -219,6 +219,18 @@ in
     nix-direnv.enable = true;
   };
 
+  # Keep Firefox links on the current workspace while reusing the existing profile
+  programs.firefox = {
+    enable = true;
+    profiles."jason-main" = {
+      path = "3n2y12vq.default";
+      isDefault = true;
+      extraConfig = ''
+        user_pref("widget.disable-workspace-management", true);
+      '';
+    };
+  };
+
   xdg.dataFile."icons/hicolor/512x512/apps/anarchy-online.png".source = ./icons/anarchy-online.png;
   xdg.dataFile."icons/hicolor/512x512/apps/muhro.png".source = ./icons/muhro.png;
 
