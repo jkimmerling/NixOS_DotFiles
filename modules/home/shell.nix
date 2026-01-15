@@ -12,24 +12,12 @@
       ls = "eza";
       ".." = "cd ..";
       rebuild = "sudo nixos-rebuild switch --flake /home/jasonk/Dot_Files#nixos";
-      update = "sudo nixos-rebuild switch --flake /home/jasonk/Dot_Files#nixos";
+      update = "nix --extra-experimental-features 'nix-command flakes' flake update /home/jasonk/Dot_Files && sudo nixos-rebuild switch --flake /home/jasonk/Dot_Files#nixos";
     };
     shellInit = ''
       # Disable fish greeting
       set -g fish_greeting
     '';
-  };
-
-  # Bash configuration (keep as fallback)
-  programs.bash = {
-    enable = true;
-    shellAliases = {
-      ll = "ls -l";
-      la = "ls -la";
-      ".." = "cd ..";
-      rebuild = "sudo nixos-rebuild switch --flake /home/jasonk/Dot_Files#nixos";
-      update = "sudo nixos-rebuild switch --flake /home/jasonk/Dot_Files#nixos";
-    };
   };
 
   # Starship prompt

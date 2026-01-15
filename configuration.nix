@@ -14,24 +14,18 @@
     ./modules/nixos/nvidia.nix
     ./modules/nixos/gaming.nix
     ./modules/nixos/audio.nix
+    ./modules/nixos/kdeconnect.nix
   ];
 
   # ===== NIX CONFIGURATION =====
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.android_sdk.accept_license = true;
 
   # Allow insecure packages (needed for MuhRO Patcher)
   nixpkgs.config.permittedInsecurePackages = [
     "libsoup-2.74.3"
   ];
-
-  # Automatic garbage collection
-  nix.settings.auto-optimise-store = true;
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 7d";
-  };
 
   # ===== SYSTEM STATE =====
   # This value determines the NixOS release from which the default

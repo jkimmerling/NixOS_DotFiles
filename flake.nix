@@ -37,7 +37,10 @@
       modules = [
         ./configuration.nix
         ({ pkgs, ... }: {
-          nixpkgs.overlays = [ rust-overlay.overlays.default ];
+          nixpkgs.overlays = [
+            rust-overlay.overlays.default
+            niri.overlays.niri
+          ];
         })
         home-manager.nixosModules.home-manager
         {
@@ -47,8 +50,8 @@
           home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.backupFileExtension = "backup";
           home-manager.sharedModules = [
-            dankMaterialShell.homeModules.dankMaterialShell.default
-            dankMaterialShell.homeModules.dankMaterialShell.niri
+            dankMaterialShell.homeModules.dank-material-shell
+            dankMaterialShell.homeModules.niri
           ];
         }
         niri.nixosModules.niri

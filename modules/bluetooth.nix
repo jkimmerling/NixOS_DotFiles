@@ -3,10 +3,19 @@
 {
   # ===== BLUETOOTH =====
 
+  # Load UHID kernel module for Bluetooth HID devices (mice, keyboards)
+  boot.kernelModules = [ "uhid" ];
+
   # Enable Bluetooth hardware and services
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
+    settings = {
+      General = {
+        Experimental = true;
+        KernelExperimental = true;
+      };
+    };
   };
 
   # Enable Blueman GUI manager

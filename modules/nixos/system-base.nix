@@ -6,6 +6,16 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.supportedFilesystems = [ "ntfs" ];
 
+  # Limit number of generations to keep
+  boot.loader.systemd-boot.configurationLimit = 10;
+
+  # AMD GPU kernel parameters to prevent crashes
+  boot.kernelParams = [
+    "amdgpu.gpu_recovery=1"           # Enable automatic GPU recovery
+    "amdgpu.ppfeaturemask=0xffffffff" # Enable all power play features
+    "amdgpu.dpm=1"                    # Enable dynamic power management
+  ];
+
   # ===== NETWORKING =====
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
@@ -27,6 +37,7 @@
 
   # ===== DESKTOP ENVIRONMENT =====
   programs.niri.enable = true;
+  programs.niri.package = pkgs.niri-unstable;  # Use unstable for include support (v25.11+)
 
   # Enable the X11 windowing system for XWayland
   services.xserver.enable = true;
@@ -51,11 +62,17 @@
   # ===== PRINTING =====
   services.printing.enable = true;
 
+  # ===== REMOVABLE MEDIA =====
+  # Enable udisks2 for automounting USB drives and other removable media
+  services.udisks2.enable = true;
+  # Enable GVFS for desktop integration (Nautilus, etc.)
+  services.gvfs.enable = true;
+
   # ===== KEYRING =====
   services.gnome.gnome-keyring.enable = true;
 
   # Enable PAM to automatically unlock keyring on login
-  # Use 'login' instead of 'sddm' since we don't use a display manager
+  security.pam.services.sddm.enableGnomeKeyring = true;
   security.pam.services.login.enableGnomeKeyring = true;
 
   # ===== USERS & SECURITY =====
@@ -70,7 +87,7 @@
       users = [ "jasonk" ];
       commands = [
         {
-          command = "ALL";
+          command = "/run/current-system/sw/bin/nixos-rebuild switch --flake /home/jasonk/Dot_Files\\#nixos";
           options = [ "NOPASSWD" ];
         }
       ];
@@ -81,25 +98,32 @@
   users.users.jasonk = {
     isNormalUser = true;
     description = "jasonk";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    shell = pkgs.fish;
     packages = with pkgs; [];
   };
 
   # ===== SYSTEM PROGRAMS =====
   programs.firefox.enable = true;
+  programs.fish.enable = true;
 
   programs.appimage = {
     enable = true;
     binfmt = true;
   };
 
-  programs.kdeconnect.enable = true;
+  # ===== VIRTUALIZATION =====
+  # Enable Docker with auto-start daemon
+  virtualisation.docker = {
+    enable = true;
+    enableOnBoot = true;
+  };
 
   programs.nix-ld = {
     enable = true;
     libraries = with pkgs; [
       (lib.getLib stdenv.cc.cc)  # glibc loader + base libs
-      webkitgtk_4_0
+      webkitgtk_4_1
       gtk3
       glib
       glib-networking
@@ -116,10 +140,28 @@
     ];
   };
 
+  # ===== GARBAGE COLLECTION =====
+  # Automatic garbage collection
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 10d";
+  };
+
+  # Optimize nix store weekly
+  nix.optimise = {
+    automatic = true;
+    dates = [ "weekly" ];
+  };
+
+  # Mouse
+  hardware.logitech.wireless.enable = true;
+  hardware.logitech.wireless.enableGraphical = true;
+
   # ===== SYSTEM PACKAGES =====
   environment.systemPackages = with pkgs; [
     nodejs_24
-    (callPackage ../../derivations/codex.nix {})  # Build Codex from source
+    # (callPackage ../../derivations/codex.nix {})  # Build Codex from source
     (callPackage ../../derivations/claude-code-latest.nix {})
 
     # Wayland utilities
@@ -128,6 +170,7 @@
     grim
     slurp
     swappy
+    satty
     networkmanagerapplet
   ];
 }

@@ -3,7 +3,7 @@
 let
   # MuhRO Patcher script
   muhroLibs = with pkgs; [
-    webkitgtk_4_0
+    webkitgtk_4_1
     gtk3
     glib
     glib-networking
@@ -22,6 +22,12 @@ let
   ];
 
   muhroPatcher = pkgs.writeShellScriptBin "muhro-patcher" ''
+    # NVIDIA PRIME offload for dedicated GPU
+    export __NV_PRIME_RENDER_OFFLOAD=1
+    export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    export VK_ICD_FILENAMES="/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json:/run/opengl-driver-32/share/vulkan/icd.d/nvidia_icd.i686.json"
+
+    # GTK/WebKit configuration
     export WEBKIT_DISABLE_DMABUF_RENDERER=1
     export GSK_RENDERER=gl
     export GDK_BACKEND=x11
@@ -45,7 +51,12 @@ in
 
   home.packages = with pkgs; [
     # Gaming & Wine
-    lutris
+    (lutris.override {
+      extraPkgs = pkgs: [
+        pkgs.libnghttp2
+        pkgs.winetricks
+      ];
+    })
     wineWowPackages.stable
     winetricks
     muhroPatcher
